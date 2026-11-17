@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f7f7f5;-webkit-font-smoothing:antialiased;color:#16161a;font-family:Manrope,sans-serif}
+a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:underline}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes ping{0%{transform:scale(1);opacity:.5}100%{transform:scale(1.55);opacity:0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes toastIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:none}}
+@keyframes pop{from{opacity:0;transform:scale(.94)}to{opacity:1;transform:none}}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+@keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+</style>
+</helmet>
+<div style="display:flex;min-height:100vh;background:#f7f7f5">
+
+<aside style="width:240px;flex:none;position:sticky;top:0;height:100vh;background:#fff;border-right:1px solid #ecebe7;display:flex;flex-direction:column;padding:20px 14px;gap:18px;overflow-y:auto">
+  <div style="display:flex;align-items:center;gap:11px;padding:0 6px">
+    <div style="width:38px;height:38px;border-radius:12px;background:#16161a;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:8px">
+      <span style="background:#22a06b;border-radius:3px"></span><span style="background:#3b82f6;border-radius:3px"></span><span style="background:#f97316;border-radius:3px"></span><span style="background:#7c5cff;border-radius:3px"></span>
+    </div>
+    <div style="display:flex;flex-direction:column">
+      <span style="font:700 17px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em">NITP People</span>
+      <span style="font:600 11px Manrope,sans-serif;color:#8a8a93">Attendance &amp; HRMS</span>
+    </div>
+  </div>
+  <nav style="display:flex;flex-direction:column;gap:2px">
+    <sc-for list="{{ nav }}" as="n" hint-placeholder-count="10">
+      <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:11px;border:none;cursor:pointer;text-align:left;padding:10px 12px;border-radius:11px;background:{{ n.bg }};color:{{ n.fg }};font:600 13.5px Manrope,sans-serif;transition:background .2s,color .2s" style-hover="background:#f3f2ef;color:#16161a">
+        <span style="width:9px;height:9px;border-radius:3px;background:{{ n.dot }};flex:none"></span>
+        <span style="flex:1">{{ n.l }}</span>
+        <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="font:700 10.5px Manrope,sans-serif;background:#f43f5e;color:#fff;border-radius:20px;padding:2px 7px">{{ n.badge }}</span></sc-if>
+      </button>
+    </sc-for>
+  </nav>
+  <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+    <div style="font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.08em;text-transform:uppercase;padding:0 6px">View as</div>
+    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#f3f2ef;border-radius:12px;padding:4px">
+      <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
+        <button onClick="{{ r.go }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 0;font:700 12px Manrope,sans-serif;background:{{ r.bg }};color:{{ r.fg }};box-shadow:{{ r.sh }};transition:all .2s">{{ r.l }}</button>
+      </sc-for>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#efe9ff">
+      <div style="width:36px;height:36px;border-radius:50%;background:#7c5cff;color:#fff;display:grid;place-items:center;font:700 13px Manrope,sans-serif;flex:none">{{ me.ini }}</div>
+      <div style="display:flex;flex-direction:column;min-width:0">
+        <span style="font:700 13px Manrope,sans-serif">{{ me.name }}</span>
+        <span style="font:500 11px Manrope,sans-serif;color:#5236b8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ me.title }}</span>
+      </div>
+    </div>
+  </div>
+</aside>
+
+<main style="flex:1;min-width:0;display:flex;flex-direction:column">
+  <header style="position:sticky;top:0;z-index:30;background:rgba(247,247,245,.86);backdrop-filter:blur(14px);border-bottom:1px solid #ecebe7;padding:14px 30px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+    <div style="flex:1;min-width:180px">
+      <div style="font:700 11px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase">{{ crumb }}</div>
+      <h1 style="margin:3px 0 0;font:700 25px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.025em">{{ pageTitle }}</h1>
+    </div>
+    <div style="position:relative;width:260px;max-width:100%">
+      <input value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onQKey }}" placeholder="Jump to a page…" style="width:100%;border:1px solid #e6e4df;border-radius:12px;padding:10px 14px;font:500 13px Manrope,sans-serif;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff">
+      <sc-if value="{{ qOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #ecebe7;border-radius:14px;box-shadow:0 18px 40px -18px rgba(20,20,30,.3);padding:6px;animation:pop .18s both">
+          <sc-for list="{{ qRes }}" as="x" hint-placeholder-count="2">
+            <button onClick="{{ x.go }}" style="width:100%;display:flex;align-items:center;gap:10px;border:none;background:transparent;padding:9px 10px;border-radius:9px;cursor:pointer;font:600 13px Manrope,sans-serif;color:#16161a;text-align:left" style-hover="background:#f3f2ef"><span style="width:8px;height:8px;border-radius:3px;background:{{ x.dot }}"></span>{{ x.l }}</button>
+          </sc-for>
+          <sc-if value="{{ qNone }}" hint-placeholder-val="{{ false }}"><div style="padding:10px;font:500 12.5px Manrope,sans-serif;color:#8a8a93">No matching page</div></sc-if>
+        </div>
+      </sc-if>
+    </div>
+    <div style="position:relative">
+      <button onClick="{{ toggleNotif }}" style="position:relative;width:42px;height:42px;border-radius:12px;border:1px solid #e6e4df;background:#fff;cursor:pointer;display:grid;place-items:center" style-hover="background:#f3f2ef">
+        <span style="width:14px;height:14px;border:2px solid #16161a;border-radius:7px 7px 3px 3px"></span>
+        <sc-if value="{{ notifCount }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;border-radius:10px;background:#f43f5e;color:#fff;font:700 10.5px/19px Manrope,sans-serif;text-align:center;padding:0 5px;border:2px solid #f7f7f5">{{ notifCount }}</span></sc-if>
+      </button>
+      <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
+        <div style="position:absolute;right:0;top:calc(100% + 8px);width:330px;background:#fff;border:1px solid #ecebe7;border-radius:16px;box-shadow:0 22px 50px -20px rgba(20,20,30,.35);padding:14px;animation:pop .2s both;display:flex;flex-direction:column;gap:6px">
+          <div style="font:600 15px 'Bricolage Grotesque',sans-serif;padding:2px 4px 6px">Recent activity</div>
+          <sc-for list="{{ notifs }}" as="x" hint-placeholder-count="4">
+            <div style="display:flex;gap:10px;padding:9px;border-radius:10px;background:#fafaf8">
+              <span style="width:8px;height:8px;border-radius:50%;background:{{ x.ac }};margin-top:5px;flex:none"></span>
+              <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 12.5px/1.35 Manrope,sans-serif">{{ x.a }}</span><span style="font:500 11px Manrope,sans-serif;color:#8a8a93">{{ x.who }} · {{ x.time }}</span></div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-if>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:#fff;border:1px solid #e6e4df;border-radius:14px">
+      <div style="width:32px;height:32px;border-radius:10px;background:#16161a;color:#fff;display:grid;place-items:center;font:700 12px Manrope,sans-serif">{{ me.ini }}</div>
+      <div style="display:flex;flex-direction:column"><span style="font:700 12px Manrope,sans-serif">{{ roleName }}</span><span style="font:500 10.5px 'JetBrains Mono',monospace;color:#8a8a93">{{ me.id }}</span></div>
+    </div>
+  </header>
+
+  <div style="padding:26px 30px 70px;display:flex;flex-direction:column;gap:20px;width:100%;max-width:1380px">
+
+  <!-- DASHBOARD -->
+  <sc-if value="{{ pg.dash }}" hint-placeholder-val="{{ true }}">
+  <div style="display:flex;flex-direction:column;gap:20px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;animation:fadeUp .5s both">
+      <div>
+        <div style="font:700 32px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ greeting }}, {{ me.first }}</div>
+        <div style="font:500 14px Manrope,sans-serif;color:#6b6b74;margin-top:6px">{{ todayLong }} · Shift {{ shiftLabel }}</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;font:600 12.5px Manrope,sans-serif;color:#0c6b44;background:#e3f6ec;padding:8px 14px;border-radius:30px"><span style="width:8px;height:8px;border-radius:50%;background:#22a06b;animation:pulse 1.6s infinite"></span>Live · {{ clock }}</div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+      <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
+        <button onClick="{{ st.go }}" style="text-align:left;position:relative;overflow:hidden;border:1px solid rgba(0,0,0,.03);cursor:pointer;background:{{ st.bg }};border-radius:22px;padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-height:146px;transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s;animation:fadeUp .55s both;animation-delay:{{ st.delay }}" style-hover="transform:translateY(-4px);box-shadow:0 16px 30px -16px rgba(20,20,30,.3)">
+          <span style="position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;border:20px solid {{ st.ac }};opacity:.13"></span>
+          <span style="font:800 11px Manrope,sans-serif;color:{{ st.fg }};text-transform:uppercase;letter-spacing:.08em">{{ st.label }}</span>
+          <span style="font:600 36px/1 'Bricolage Grotesque',sans-serif;color:#16161a;letter-spacing:-.03em">{{ st.value }}</span>
+          <span style="font:600 12.5px Manrope,sans-serif;color:{{ st.fg }};margin-top:auto">{{ st.sub }} →</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+      <div style="background:#16161a;color:#fff;border-radius:22px;padding:24px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden;animation:fadeUp .6s .1s both">
+        <span style="position:absolute;right:-60px;bottom:-80px;width:240px;height:240px;border-radius:50%;background:#7c5cff;opacity:.25;filter:blur(30px)"></span>
+        <div style="width:132px;height:132px;border-radius:50%;background:conic-gradient(#7c5cff {{ ringDeg }}deg,#2b2b33 0);display:grid;place-items:center;flex:none;transition:background .6s">
+          <div style="width:110px;height:110px;border-radius:50%;background:#16161a;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px">
+            <span style="font:600 19px 'JetBrains Mono',monospace">{{ elapsedShort }}</span><span style="font:600 10.5px Manrope,sans-serif;color:#9a9aa3">of 9h shift</span>
+          </div>
+        </div>
+        <div style="flex:1;min-width:170px;display:flex;flex-direction:column;gap:10px;position:relative">
+          <span style="font:700 11px Manrope,sans-serif;color:#9a9aa3;letter-spacing:.08em;text-transform:uppercase">Today's attendance</span>
+          <span style="font:600 34px/1 'JetBrains Mono',monospace;letter-spacing:-.02em">{{ clock }}</span>
+          <div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ pills }}" as="p" hint-placeholder-count="1"><span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ p.bg }};color:{{ p.fg }}">{{ p.t }}</span></sc-for></div>
+          <button onClick="{{ punch }}" style="align-self:flex-start;margin-top:4px;border:none;cursor:pointer;border-radius:12px;padding:11px 20px;font:700 13.5px Manrope,sans-serif;background:{{ punchBg }};color:#fff;transition:transform .2s,filter .2s" style-hover="transform:translateY(-1px);filter:brightness(1.08)">{{ punchLabel }}</button>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px;animation:fadeUp .6s .15s both">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Hours this week</h3><span style="font:600 12.5px 'JetBrains Mono',monospace;color:#6b6b74">{{ weekHrs }}h logged</span></div>
+        <div style="display:flex;align-items:flex-end;gap:10px;height:150px;padding-top:10px;border-bottom:1px dashed #e6e4df">
+          <sc-for list="{{ week }}" as="w" hint-placeholder-count="7">
+            <div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px">
+              <span style="font:600 10.5px 'JetBrains Mono',monospace;color:#6b6b74">{{ w.h }}</span>
+              <div style="width:100%;max-width:34px;height:{{ w.pct }};background:{{ w.bg }};border-radius:9px 9px 4px 4px;transform-origin:bottom;animation:grow .7s cubic-bezier(.2,.7,.2,1) both;animation-delay:{{ w.delay }};transition:height .5s"></div>
+            </div>
+          </sc-for>
+        </div>
+        <div style="display:flex;gap:10px"><sc-for list="{{ week }}" as="w" hint-placeholder-count="7"><span style="flex:1;text-align:center;font:600 11px Manrope,sans-serif;color:#8a8a93">{{ w.l }}</span></sc-for></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .6s .2s both">
+        <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">{{ dashListTitle }}</h3>
+        <sc-for list="{{ dashList }}" as="x" hint-placeholder-count="3">
+          <button onClick="{{ x.go }}" style="display:flex;align-items:center;gap:12px;border:none;cursor:pointer;text-align:left;background:#fafaf8;border-radius:14px;padding:12px;transition:background .2s" style-hover="background:#f1f0ed">
+            <span style="width:36px;height:36px;border-radius:11px;background:{{ x.bg }};color:{{ x.fg }};display:grid;place-items:center;font:800 11px Manrope,sans-serif;flex:none">{{ x.tag }}</span>
+            <span style="display:flex;flex-direction:column;gap:2px;min-width:0"><span style="font:700 13px Manrope,sans-serif;color:#16161a">{{ x.t }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#8a8a93">{{ x.s }}</span></span>
+          </button>
+        </sc-for>
+        <sc-if value="{{ dashListEmpty }}" hint-placeholder-val="{{ false }}"><div style="font:500 13px Manrope,sans-serif;color:#8a8a93;padding:12px 0">All clear — nothing pending.</div></sc-if>
+      </div>
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .6s .25s both">
+        <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Upcoming trainings</h3>
+        <sc-for list="{{ upTrain }}" as="x" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;background:{{ x.bg }};border-radius:14px;padding:12px 14px">
+            <div style="display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:10px;padding:5px 9px;flex:none"><span style="font:800 10px Manrope,sans-serif;color:{{ x.fg }};text-transform:uppercase">{{ x.mon }}</span><span style="font:700 17px/1 'Bricolage Grotesque',sans-serif">{{ x.day }}</span></div>
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font:700 13px Manrope,sans-serif">{{ x.title }}</span><span style="font:600 11.5px Manrope,sans-serif;color:{{ x.fg }}">{{ x.time }} · {{ x.mode }}</span></div>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:4px;animation:fadeUp .6s .3s both">
+        <h3 style="margin:0 0 8px;font:600 17px 'Bricolage Grotesque',sans-serif">Activity</h3>
+        <sc-for list="{{ notifs }}" as="x" hint-placeholder-count="4">
+          <div style="display:flex;gap:12px;padding:8px 0;border-bottom:1px solid #f3f2ef">
+            <span style="font:600 11px 'JetBrains Mono',monospace;color:#8a8a93;width:40px;flex:none;padding-top:1px">{{ x.time }}</span>
+            <span style="width:8px;height:8px;border-radius:50%;background:{{ x.ac }};margin-top:5px;flex:none"></span>
+            <span style="font:600 12.5px/1.4 Manrope,sans-serif">{{ x.a }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- ATTENDANCE -->
+  <sc-if value="{{ pg.att }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:20px;animation:fadeUp .5s both">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+      <div style="background:#efe9ff;border-radius:24px;padding:26px;display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;overflow:hidden">
+        <span style="position:absolute;left:-40px;top:-40px;width:160px;height:160px;border-radius:50%;border:26px solid #7c5cff;opacity:.08"></span>
+        <span style="font:800 11px Manrope,sans-serif;color:#5236b8;letter-spacing:.08em;text-transform:uppercase">{{ todayLong }}</span>
+        <span style="font:600 46px/1 'JetBrains Mono',monospace;letter-spacing:-.03em">{{ clock }}</span>
+        <div style="position:relative;width:150px;height:150px;display:grid;place-items:center">
+          <sc-if value="{{ canPunch }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;inset:14px;border-radius:50%;background:{{ punchBg }};animation:ping 1.8s cubic-bezier(0,0,.2,1) infinite"></span></sc-if>
+          <button onClick="{{ punch }}" style="position:relative;width:122px;height:122px;border-radius:50%;border:6px solid #fff;background:{{ punchBg }};color:#fff;cursor:pointer;font:800 15px Manrope,sans-serif;box-shadow:0 18px 30px -14px rgba(60,30,160,.5);transition:transform .2s" style-hover="transform:scale(1.04)" style-active="transform:scale(.96)">{{ punchLabel }}</button>
+        </div>
+        <div style="display:flex;gap:6px;flex-wrap:wrap;justify-content:center"><sc-for list="{{ pills }}" as="p" hint-placeholder-count="1"><span style="font:700 11.5px Manrope,sans-serif;padding:5px 11px;border-radius:20px;background:{{ p.bg }};color:{{ p.fg }}">{{ p.t }}</span></sc-for></div>
+        <div style="display:grid;grid-template-columns:repeat(2,1fr);gap:8px;width:100%">
+          <sc-for list="{{ punchMeta }}" as="m" hint-placeholder-count="4">
+            <div style="background:#fff;border-radius:12px;padding:10px 12px;display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font:700 10px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase">{{ m.k }}</span><span style="font:600 12.5px 'JetBrains Mono',monospace;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ m.v }}</span></div>
+          </sc-for>
+        </div>
+      </div>
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><h3 style="margin:0;font:600 18px 'Bricolage Grotesque',sans-serif">November 2026</h3><span style="font:600 12px Manrope,sans-serif;color:#8a8a93">Hover a day for details</span></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+          <sc-for list="{{ attSummary }}" as="x" hint-placeholder-count="4">
+            <div style="background:{{ x.bg }};border-radius:14px;padding:12px"><div style="font:600 24px/1 'Bricolage Grotesque',sans-serif">{{ x.n }}</div><div style="font:700 11px Manrope,sans-serif;color:{{ x.fg }};margin-top:4px">{{ x.l }}</div></div>
+          </sc-for>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:6px">
+          <sc-for list="{{ dow }}" as="d" hint-placeholder-count="7"><span style="text-align:center;font:700 10.5px Manrope,sans-serif;color:#8a8a93">{{ d }}</span></sc-for>
+          <sc-for list="{{ cal }}" as="c" hint-placeholder-count="30">
+            <div title="{{ c.tip }}" style="aspect-ratio:1.25;border-radius:10px;background:{{ c.bg }};color:{{ c.fg }};border:{{ c.bd }};display:flex;align-items:flex-start;justify-content:flex-end;padding:6px 8px;font:700 12px Manrope,sans-serif;transition:transform .2s" style-hover="transform:scale(1.08)">{{ c.d }}</div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:6px;overflow-x:auto">
+        <h3 style="margin:0 0 8px;font:600 17px 'Bricolage Grotesque',sans-serif">Recent records</h3>
+        <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr 1fr;gap:8px;padding:0 10px 6px;font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase"><span>Date</span><span>In</span><span>Out</span><span>Hours</span><span>Status</span></div>
+        <sc-for list="{{ records }}" as="x" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr 1fr;gap:8px;align-items:center;padding:10px;border-radius:11px;font:600 13px Manrope,sans-serif" style-hover="background:#fafaf8">
+            <span>{{ x.date }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ x.inT }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ x.outT }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ x.hrs }}</span>
+            <span><span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ x.bg }};color:{{ x.fg }}">{{ x.st }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Regularisation request</h3><div style="font:500 12.5px Manrope,sans-serif;color:#8a8a93;margin-top:4px">Correct a missed or wrong punch. Goes to your TL for approval.</div></div>
+        <form onSubmit="{{ submitReg }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Date<input name="date" type="date" required="" max="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Correct time<input name="time" type="time" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Type<select name="type" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;background:#fff"><option>Missed punch-in</option><option>Missed punch-out</option><option>Wrong punch-out</option><option>On-duty (client site)</option></select></label>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Reason<input name="reason" required="" placeholder="e.g. Biometric terminal offline" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+          <button type="submit" style="grid-column:1/-1;border:none;cursor:pointer;border-radius:11px;padding:11px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff" style-hover="background:#33333b">Submit request</button>
+        </form>
+        <sc-for list="{{ myRegs }}" as="x" hint-placeholder-count="1">
+          <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;background:#fafaf8;border-radius:12px;padding:10px 12px">
+            <div style="display:flex;flex-direction:column;gap:2px"><span style="font:700 12.5px Manrope,sans-serif">{{ x.type }} · {{ x.dateL }} {{ x.time }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#8a8a93">{{ x.reason }}</span></div>
+            <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ x.bg }};color:{{ x.fg }};flex:none">{{ x.status }}</span>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+    <sc-if value="{{ isMgr }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff4c9;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Regularisation approvals</h3><span style="font:700 12px Manrope,sans-serif;color:#7a5a00">{{ pendRegCount }} pending</span></div>
+        <sc-for list="{{ pendRegs }}" as="x" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:12px;background:#fff;border-radius:14px;padding:12px 14px;flex-wrap:wrap">
+            <span style="width:36px;height:36px;border-radius:50%;background:{{ x.av }};display:grid;place-items:center;font:800 12px Manrope,sans-serif;flex:none">{{ x.ini }}</span>
+            <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:2px"><span style="font:700 13px Manrope,sans-serif">{{ x.who }} — {{ x.type }}</span><span style="font:500 12px Manrope,sans-serif;color:#6b6b74">{{ x.dateL }} at {{ x.time }} · {{ x.reason }}</span></div>
+            <button onClick="{{ x.rej }}" style="border:1px solid #f6c3cf;background:#fff;color:#a61e45;border-radius:10px;padding:8px 14px;font:700 12px Manrope,sans-serif;cursor:pointer" style-hover="background:#ffe5eb">Reject</button>
+            <button onClick="{{ x.app }}" style="border:none;background:#22a06b;color:#fff;border-radius:10px;padding:8px 14px;font:700 12px Manrope,sans-serif;cursor:pointer" style-hover="background:#1b8a5b">Approve</button>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noPendRegs }}" hint-placeholder-val="{{ false }}"><div style="font:600 13px Manrope,sans-serif;color:#7a5a00">No pending regularisations.</div></sc-if>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- TEAM LIVE -->
+  <sc-if value="{{ pg.team }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+      <sc-for list="{{ teamSummary }}" as="x" hint-placeholder-count="5">
+        <button onClick="{{ x.go }}" style="text-align:left;border:{{ x.bd }};cursor:pointer;background:{{ x.bg }};border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;transition:transform .2s" style-hover="transform:translateY(-2px)">
+          <span style="font:600 30px/1 'Bricolage Grotesque',sans-serif;color:#16161a">{{ x.n }}</span><span style="font:700 12px Manrope,sans-serif;color:{{ x.fg }}">{{ x.l }}</span>
+        </button>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+      <sc-for list="{{ teamList }}" as="m" hint-placeholder-count="8">
+        <div style="background:#fff;border:1px solid #ecebe7;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px;transition:transform .25s,box-shadow .25s;animation:pop .35s both" style-hover="transform:translateY(-3px);box-shadow:0 14px 28px -16px rgba(20,20,30,.3)">
+          <div style="display:flex;align-items:center;gap:11px">
+            <div style="position:relative;flex:none"><span style="width:42px;height:42px;border-radius:50%;background:{{ m.av }};display:grid;place-items:center;font:800 13px Manrope,sans-serif">{{ m.ini }}</span><span style="position:absolute;right:-1px;bottom:-1px;width:13px;height:13px;border-radius:50%;background:{{ m.dot }};border:2.5px solid #fff"></span></div>
+            <div style="display:flex;flex-direction:column;min-width:0"><span style="font:700 13.5px Manrope,sans-serif">{{ m.n }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#8a8a93">{{ m.r }}</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;align-items:center">
+            <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ m.bg }};color:{{ m.fg }}">{{ m.s }}</span>
+            <span style="font:600 12px 'JetBrains Mono',monospace;color:#6b6b74">in {{ m.t }} · {{ m.h }}</span>
+          </div>
+          <div style="height:6px;border-radius:6px;background:#f1f0ed;overflow:hidden"><div style="height:100%;width:{{ m.pct }};background:{{ m.dot }};border-radius:6px;transition:width .8s"></div></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- TRACK SHEET -->
+  <sc-if value="{{ pg.track }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Log work</h3>
+        <form onSubmit="{{ submitTrack }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Date<input name="date" type="date" value="2026-11-16" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Hours<input name="hours" type="number" min="0.25" max="12" step="0.25" required="" placeholder="2.5" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Project<select name="project" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;background:#fff"><option>Attendance API</option><option>Payroll Engine</option><option>Mobile App</option><option>Internal Tools</option><option>Client — Zenith Bank</option></select></label>
+          <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">What did you work on?<textarea name="desc" required="" rows="2" placeholder="Describe the task and outcome" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;resize:vertical" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></textarea></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Link<input name="link" type="url" placeholder="https://" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Attachment<input name="file" type="file" style="border:1px dashed #d6d3cc;border-radius:10px;padding:7px 9px;font:500 12px Manrope,sans-serif;background:#fafaf8"></label>
+          <button type="submit" style="grid-column:1/-1;border:none;cursor:pointer;border-radius:11px;padding:11px;font:700 13px Manrope,sans-serif;background:#7c5cff;color:#fff" style-hover="background:#6a48f0">Add to track sheet</button>
+        </form>
+      </div>
+      <div style="background:#e3f6ec;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:flex-end;flex-wrap:wrap;gap:10px">
+          <div><div style="font:800 11px Manrope,sans-serif;color:#0c6b44;letter-spacing:.08em;text-transform:uppercase">{{ trackScope }}</div><div style="font:600 44px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em;margin-top:6px">{{ trackTotal }}<span style="font-size:20px;color:#0c6b44"> / 40h</span></div></div>
+          <span style="font:700 12px Manrope,sans-serif;background:#fff;color:#0c6b44;padding:6px 12px;border-radius:20px">{{ trackPct }} of weekly target</span>
+        </div>
+        <div style="height:12px;background:#fff;border-radius:10px;overflow:hidden"><div style="height:100%;width:{{ trackPct }};background:#22a06b;border-radius:10px;transition:width .8s cubic-bezier(.2,.7,.2,1)"></div></div>
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <sc-for list="{{ projBreak }}" as="p" hint-placeholder-count="3">
+            <div style="display:grid;grid-template-columns:140px 1fr 48px;gap:10px;align-items:center;font:600 12.5px Manrope,sans-serif"><span>{{ p.n }}</span><div style="height:8px;background:rgba(255,255,255,.8);border-radius:8px;overflow:hidden"><div style="height:100%;width:{{ p.pct }};background:{{ p.c }};border-radius:8px;transition:width .8s"></div></div><span style="font-family:'JetBrains Mono',monospace;text-align:right">{{ p.h }}h</span></div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:8px">
+      <h3 style="margin:0 0 6px;font:600 17px 'Bricolage Grotesque',sans-serif">{{ trackListTitle }}</h3>
+      <sc-for list="{{ trackList }}" as="x" hint-placeholder-count="4">
+        <div style="display:flex;gap:14px;align-items:center;padding:12px 14px;border-radius:14px;background:#fafaf8;flex-wrap:wrap;animation:fadeUp .4s both">
+          <div style="display:flex;flex-direction:column;align-items:center;width:46px;flex:none"><span style="font:600 20px/1 'Bricolage Grotesque',sans-serif">{{ x.hours }}</span><span style="font:700 10px Manrope,sans-serif;color:#8a8a93">HRS</span></div>
+          <div style="flex:1;min-width:200px;display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:700 11px Manrope,sans-serif;padding:3px 9px;border-radius:20px;background:{{ x.pbg }};color:{{ x.pfg }}">{{ x.project }}</span><span style="font:600 11.5px Manrope,sans-serif;color:#8a8a93">{{ x.dateL }} · {{ x.who }}</span></div>
+            <span style="font:600 13px Manrope,sans-serif">{{ x.desc }}</span>
+            <div style="display:flex;gap:10px;flex-wrap:wrap">
+              <sc-if value="{{ x.link }}" hint-placeholder-val="{{ false }}"><a href="{{ x.link }}" target="_blank" style="font:600 12px Manrope,sans-serif">↗ {{ x.linkL }}</a></sc-if>
+              <sc-if value="{{ x.file }}" hint-placeholder-val="{{ false }}"><span style="font:600 12px 'JetBrains Mono',monospace;color:#5c5c66;background:#fff;border:1px solid #ecebe7;border-radius:6px;padding:1px 7px">📎 {{ x.file }}</span></sc-if>
+            </div>
+          </div>
+          <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ x.bg }};color:{{ x.fg }}">{{ x.status }}</span>
+          <sc-if value="{{ x.canReview }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;gap:6px"><button onClick="{{ x.chg }}" style="border:1px solid #f9cfb3;background:#fff;color:#a8480f;border-radius:9px;padding:7px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer">Request changes</button><button onClick="{{ x.app }}" style="border:none;background:#22a06b;color:#fff;border-radius:9px;padding:7px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer">Approve</button></div>
+          </sc-if>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- TASKS -->
+  <sc-if value="{{ pg.tasks }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <form onSubmit="{{ addTask }}" style="background:#fff;border:1px solid #ecebe7;border-radius:20px;padding:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+      <span style="font:600 15px 'Bricolage Grotesque',sans-serif;padding:0 6px">{{ taskVerb }}</span>
+      <input name="title" required="" placeholder="Task title" style="flex:2;min-width:200px;border:1px solid #e6e4df;border-radius:10px;padding:10px 12px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff">
+      <select name="who" style="flex:1;min-width:140px;border:1px solid #e6e4df;border-radius:10px;padding:10px 12px;font:500 13px Manrope,sans-serif;background:#fff"><option>Aarav Mehta</option><option>Rohan Das</option><option>Sneha Iyer</option><option>Vikram Singh</option><option>Ananya Gupta</option><option>Karan Patel</option></select>
+      <select name="pri" style="min-width:110px;border:1px solid #e6e4df;border-radius:10px;padding:10px 12px;font:500 13px Manrope,sans-serif;background:#fff"><option>High</option><option selected="">Medium</option><option>Low</option></select>
+      <input name="due" type="date" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 12px;font:500 13px Manrope,sans-serif">
+      <button type="submit" style="border:none;cursor:pointer;border-radius:10px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff" style-hover="background:#33333b">Add</button>
+    </form>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:start">
+      <sc-for list="{{ cols }}" as="c" hint-placeholder-count="4">
+        <div style="background:{{ c.bg }};border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:260px">
+          <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px"><span style="font:800 12px Manrope,sans-serif;color:{{ c.fg }};letter-spacing:.06em;text-transform:uppercase">{{ c.name }}</span><span style="font:700 12px Manrope,sans-serif;background:#fff;color:{{ c.fg }};border-radius:20px;padding:2px 9px">{{ c.count }}</span></div>
+          <sc-for list="{{ c.items }}" as="t" hint-placeholder-count="2">
+            <div style="background:#fff;border-radius:14px;padding:13px;display:flex;flex-direction:column;gap:10px;box-shadow:0 1px 2px rgba(0,0,0,.04);animation:pop .3s both;transition:transform .2s,box-shadow .2s" style-hover="transform:translateY(-2px);box-shadow:0 10px 22px -14px rgba(20,20,30,.35)">
+              <div style="display:flex;justify-content:space-between;gap:8px"><span style="font:700 13px/1.35 Manrope,sans-serif">{{ t.title }}</span><span style="font:800 10px Manrope,sans-serif;padding:3px 8px;border-radius:20px;background:{{ t.pbg }};color:{{ t.pfg }};height:fit-content;flex:none">{{ t.pri }}</span></div>
+              <div style="display:flex;align-items:center;gap:8px">
+                <span title="{{ t.who }}" style="width:26px;height:26px;border-radius:50%;background:{{ t.av }};display:grid;place-items:center;font:800 10px Manrope,sans-serif">{{ t.ini }}</span>
+                <span style="font:600 11.5px Manrope,sans-serif;color:#8a8a93;flex:1">Due {{ t.dueL }}</span>
+                <button onClick="{{ t.left }}" disabled="{{ t.noLeft }}" style="width:28px;height:28px;border-radius:8px;border:1px solid #ecebe7;background:#fff;cursor:pointer;font:700 13px Manrope,sans-serif;opacity:{{ t.lo }}" style-hover="background:#f3f2ef">←</button>
+                <button onClick="{{ t.right }}" disabled="{{ t.noRight }}" style="width:28px;height:28px;border-radius:8px;border:none;background:#16161a;color:#fff;cursor:pointer;font:700 13px Manrope,sans-serif;opacity:{{ t.ro }}">→</button>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- LEAVE -->
+  <sc-if value="{{ pg.leave }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
+      <sc-for list="{{ quotas }}" as="q" hint-placeholder-count="4">
+        <div style="background:{{ q.bg }};border-radius:22px;padding:18px 20px;display:flex;align-items:center;gap:16px;transition:transform .25s" style-hover="transform:translateY(-3px)">
+          <div style="width:72px;height:72px;border-radius:50%;background:conic-gradient({{ q.ac }} {{ q.deg }}deg,rgba(255,255,255,.85) 0);display:grid;place-items:center;flex:none"><div style="width:56px;height:56px;border-radius:50%;background:{{ q.bg }};display:grid;place-items:center;font:600 20px 'Bricolage Grotesque',sans-serif">{{ q.rem }}</div></div>
+          <div style="display:flex;flex-direction:column;gap:3px"><span style="font:800 12px Manrope,sans-serif;color:{{ q.fg }};text-transform:uppercase;letter-spacing:.06em">{{ q.n }}</span><span style="font:600 12.5px Manrope,sans-serif;color:#16161a">{{ q.rem }} of {{ q.total }} left</span><span style="font:500 11.5px Manrope,sans-serif;color:{{ q.fg }}">{{ q.used }} used</span></div>
+        </div>
+      </sc-for>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
+        <div style="display:flex;gap:4px;background:#f3f2ef;border-radius:12px;padding:4px;align-self:flex-start">
+          <button onClick="{{ tabLeave }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 16px;font:700 12.5px Manrope,sans-serif;background:{{ tabLeaveBg }};box-shadow:{{ tabLeaveSh }};color:#16161a">Apply leave</button>
+          <button onClick="{{ tabWfh }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 16px;font:700 12.5px Manrope,sans-serif;background:{{ tabWfhBg }};box-shadow:{{ tabWfhSh }};color:#16161a">Work from home</button>
+        </div>
+        <sc-if value="{{ isLeaveTab }}" hint-placeholder-val="{{ true }}">
+          <form onSubmit="{{ submitLeave }}" onChange="{{ onLeaveForm }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;animation:fadeUp .3s both">
+            <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Leave type<select name="type" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;background:#fff"><option>Casual</option><option>Sick</option><option>Earned</option><option>Comp-off</option></select></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">From<input name="from" type="date" required="" min="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">To<input name="to" type="date" required="" min="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+            <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Reason<input name="reason" required="" placeholder="Brief reason" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+            <div style="grid-column:1/-1;display:flex;justify-content:space-between;align-items:center;background:{{ lopBg }};border-radius:12px;padding:11px 14px;font:600 12.5px Manrope,sans-serif;color:{{ lopFg }};transition:background .3s">{{ lopPreview }}</div>
+            <button type="submit" style="grid-column:1/-1;border:none;cursor:pointer;border-radius:11px;padding:11px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff" style-hover="background:#33333b">Submit leave request</button>
+          </form>
+        </sc-if>
+        <sc-if value="{{ isWfhTab }}" hint-placeholder-val="{{ false }}">
+          <form onSubmit="{{ submitWfh }}" style="display:grid;grid-template-columns:1fr;gap:10px;animation:fadeUp .3s both">
+            <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Date<input name="date" type="date" required="" min="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
+            <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Reason &amp; deliverables<textarea name="reason" required="" rows="3" placeholder="What you'll deliver while remote" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;resize:vertical" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></textarea></label>
+            <div style="background:#e4efff;border-radius:12px;padding:11px 14px;font:600 12.5px Manrope,sans-serif;color:#1d56b0">Approved WFH days count as present. Punch from home is IP-tagged.</div>
+            <button type="submit" style="border:none;cursor:pointer;border-radius:11px;padding:11px;font:700 13px Manrope,sans-serif;background:#3b82f6;color:#fff" style-hover="background:#2f6fe0">Request WFH</button>
+          </form>
+        </sc-if>
+      </div>
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px">
+        <h3 style="margin:0 0 4px;font:600 17px 'Bricolage Grotesque',sans-serif">{{ reqTitle }}</h3>
+        <sc-for list="{{ reqs }}" as="x" hint-placeholder-count="3">
+          <div style="display:flex;align-items:center;gap:12px;background:#fafaf8;border-radius:14px;padding:12px;flex-wrap:wrap">
+            <span style="width:38px;height:38px;border-radius:12px;background:{{ x.tbg }};color:{{ x.tfg }};display:grid;place-items:center;font:800 10.5px Manrope,sans-serif;flex:none">{{ x.tag }}</span>
+            <div style="flex:1;min-width:170px;display:flex;flex-direction:column;gap:2px"><span style="font:700 13px Manrope,sans-serif">{{ x.head }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#8a8a93">{{ x.sub }}</span></div>
+            <sc-if value="{{ x.lop }}" hint-placeholder-val="{{ false }}"><span style="font:800 10.5px Manrope,sans-serif;padding:3px 8px;border-radius:20px;background:#ffe5eb;color:#a61e45">{{ x.lop }}</span></sc-if>
+            <sc-if value="{{ x.canAct }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:6px"><button onClick="{{ x.rej }}" style="border:1px solid #f6c3cf;background:#fff;color:#a61e45;border-radius:9px;padding:7px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer">Reject</button><button onClick="{{ x.app }}" style="border:none;background:#22a06b;color:#fff;border-radius:9px;padding:7px 11px;font:700 11.5px Manrope,sans-serif;cursor:pointer">Approve</button></div></sc-if>
+            <sc-if value="{{ x.showStatus }}" hint-placeholder-val="{{ true }}"><span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ x.bg }};color:{{ x.fg }}">{{ x.status }}</span></sc-if>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- PAYROLL -->
+  <sc-if value="{{ pg.pay }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <sc-if value="{{ isHR }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#16161a;color:#fff;border-radius:22px;padding:22px 24px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+          <div><div style="font:600 19px 'Bricolage Grotesque',sans-serif">Payroll run · November 2026</div><div style="font:500 12.5px Manrope,sans-serif;color:#9a9aa3;margin-top:4px">{{ runSub }}</div></div>
+          <button onClick="{{ runPayroll }}" disabled="{{ runBusy }}" style="border:none;cursor:pointer;border-radius:12px;padding:11px 20px;font:700 13px Manrope,sans-serif;background:{{ runBtnBg }};color:#16161a;transition:transform .2s" style-hover="transform:translateY(-1px)">{{ runBtn }}</button>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px">
+          <sc-for list="{{ runSteps }}" as="r" hint-placeholder-count="5">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="height:6px;border-radius:6px;background:{{ r.bar }};background-size:200% 100%;animation:{{ r.anim }}"></div>
+              <span style="font:600 11.5px Manrope,sans-serif;color:{{ r.fg }}">{{ r.n }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;align-items:start">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;gap:6px;flex-wrap:wrap">
+          <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
+            <button onClick="{{ m.go }}" style="border:1px solid {{ m.bd }};cursor:pointer;border-radius:10px;padding:7px 12px;font:700 12px Manrope,sans-serif;background:{{ m.bg }};color:{{ m.fg }};transition:all .2s">{{ m.m }}</button>
+          </sc-for>
+        </div>
+        <div style="border:1px solid #ecebe7;border-radius:18px;overflow:hidden;position:relative">
+          <div style="background:#e3f6ec;padding:18px 20px;display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">
+            <div><div style="font:800 11px Manrope,sans-serif;color:#0c6b44;letter-spacing:.08em;text-transform:uppercase">Payslip · {{ slipMonth }}</div><div style="font:600 34px/1.05 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em;margin-top:6px">{{ slip.net }}</div><div style="font:600 12px Manrope,sans-serif;color:#0c6b44;margin-top:2px">Net pay · Aarav Mehta · NITP-1042</div></div>
+            <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ slipBadge.bg }};color:{{ slipBadge.fg }}">{{ slipStatus }}</span>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:0">
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:9px;border-right:1px solid #f1f0ed">
+              <span style="font:800 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase">Earnings</span>
+              <sc-for list="{{ slip.earn }}" as="e" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;gap:8px;font:600 12.5px Manrope,sans-serif"><span style="color:#5c5c66">{{ e.l }}</span><span style="font-family:'JetBrains Mono',monospace">{{ e.v }}</span></div></sc-for>
+              <div style="display:flex;justify-content:space-between;font:800 13px Manrope,sans-serif;border-top:1px dashed #e6e4df;padding-top:9px"><span>Gross</span><span style="font-family:'JetBrains Mono',monospace">{{ slip.gross }}</span></div>
+            </div>
+            <div style="padding:16px 20px;display:flex;flex-direction:column;gap:9px">
+              <span style="font:800 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase">Deductions</span>
+              <sc-for list="{{ slip.ded }}" as="e" hint-placeholder-count="5"><div style="display:flex;justify-content:space-between;gap:8px;font:600 12.5px Manrope,sans-serif"><span style="color:#5c5c66">{{ e.l }}</span><span style="font-family:'JetBrains Mono',monospace;color:#a61e45">{{ e.v }}</span></div></sc-for>
+              <div style="display:flex;justify-content:space-between;font:800 13px Manrope,sans-serif;border-top:1px dashed #e6e4df;padding-top:9px"><span>Total</span><span style="font-family:'JetBrains Mono',monospace">{{ slip.tded }}</span></div>
+            </div>
+          </div>
+          <sc-if value="{{ slipDraft }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;right:20px;bottom:58px;font:800 46px 'Bricolage Grotesque',sans-serif;color:rgba(224,168,0,.16);transform:rotate(-12deg);pointer-events:none">DRAFT</div></sc-if>
+          <div style="padding:14px 20px;background:#fafaf8;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">
+            <span style="font:500 12px Manrope,sans-serif;color:#8a8a93">Paid days {{ slipPaid }} / 30 · Bank ****4821</span>
+            <button onClick="{{ downloadSlip }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#16161a;color:#fff" style-hover="background:#33333b">↓ Download payslip</button>
+          </div>
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:16px">
+        <div style="background:#e4efff;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Salary structure</h3><span style="font:700 12.5px 'JetBrains Mono',monospace;color:#1d56b0">CTC ₹12,00,000 / yr</span></div>
+          <div style="display:flex;height:14px;border-radius:8px;overflow:hidden;gap:2px">
+            <sc-for list="{{ ctcSplit }}" as="c" hint-placeholder-count="5"><div title="{{ c.l }}" style="width:{{ c.pct }};background:{{ c.c }}"></div></sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+            <sc-for list="{{ ctcSplit }}" as="c" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:8px;background:#fff;border-radius:10px;padding:8px 10px;font:600 12px Manrope,sans-serif"><span style="width:9px;height:9px;border-radius:3px;background:{{ c.c }};flex:none"></span><span style="flex:1">{{ c.l }}</span><span style="font-family:'JetBrains Mono',monospace;color:#1d56b0">{{ c.v }}</span></div></sc-for>
+          </div>
+        </div>
+        <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
+          <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Net pay trend</h3>
+          <div style="display:flex;align-items:flex-end;gap:12px;height:130px">
+            <sc-for list="{{ netTrend }}" as="n" hint-placeholder-count="6">
+              <div style="flex:1;height:100%;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:6px">
+                <span style="font:600 10px 'JetBrains Mono',monospace;color:#6b6b74">{{ n.k }}</span>
+                <div style="width:100%;height:{{ n.pct }};background:{{ n.c }};border-radius:8px 8px 3px 3px;transform-origin:bottom;animation:grow .7s both;animation-delay:{{ n.delay }};transition:height .5s"></div>
+                <span style="font:700 11px Manrope,sans-serif;color:#8a8a93">{{ n.m }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+      </div>
+    </div>
+    <sc-if value="{{ isHR }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:4px;overflow-x:auto">
+        <h3 style="margin:0 0 10px;font:600 17px 'Bricolage Grotesque',sans-serif">Payroll register · Nov 2026</h3>
+        <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr .8fr;gap:8px;padding:0 10px 6px;font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase;min-width:620px"><span>Employee</span><span>Gross</span><span>PF + PT</span><span>TDS</span><span>Net</span><span>Status</span></div>
+        <sc-for list="{{ register }}" as="x" hint-placeholder-count="6">
+          <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr .8fr;gap:8px;align-items:center;padding:10px;border-radius:11px;font:600 12.5px Manrope,sans-serif;min-width:620px" style-hover="background:#fafaf8">
+            <span>{{ x.name }}</span><span style="font-family:'JetBrains Mono',monospace">{{ x.g }}</span><span style="font-family:'JetBrains Mono',monospace">{{ x.pf }}</span><span style="font-family:'JetBrains Mono',monospace">{{ x.tds }}</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700">{{ x.net }}</span><span><span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ slipBadge.bg }};color:{{ slipBadge.fg }}">{{ novStatus }}</span></span>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- PERFORMANCE -->
+  <sc-if value="{{ pg.perf }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:6px">
+        <div style="align-self:stretch;display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Performance score</h3><span style="font:600 12px Manrope,sans-serif;color:#8a8a93">Aarav Mehta · H2 2026</span></div>
+        <svg viewBox="0 0 240 140" style="width:100%;max-width:320px">
+          <sc-for list="{{ gaugeArcs }}" as="a" hint-placeholder-count="4"><path d="{{ a.d }}" stroke="{{ a.c }}" stroke-width="18" fill="none"></path></sc-for>
+          <g style="transform:rotate({{ needleDeg }}deg);transform-origin:120px 118px;transition:transform 1s cubic-bezier(.3,1.4,.5,1)">
+            <line x1="120" y1="118" x2="120" y2="40" stroke="#16161a" stroke-width="4" stroke-linecap="round"></line>
+          </g>
+          <circle cx="120" cy="118" r="10" fill="#16161a"></circle><circle cx="120" cy="118" r="4" fill="#fff"></circle>
+        </svg>
+        <div style="font:600 48px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ finalScore }}</div>
+        <span style="font:800 12px Manrope,sans-serif;padding:5px 12px;border-radius:20px;background:{{ band.bg }};color:{{ band.fg }}">{{ band.n }} band{{ overrideNote }}</span>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;margin-top:12px">
+          <sc-for list="{{ bands }}" as="b" hint-placeholder-count="4"><div style="border-radius:10px;padding:8px;background:{{ b.bg }};border:2px solid {{ b.bd }};text-align:center;transition:border-color .3s"><div style="font:800 11px Manrope,sans-serif;color:{{ b.fg }}">{{ b.n }}</div><div style="font:600 10.5px 'JetBrains Mono',monospace;color:{{ b.fg }}">{{ b.r }}</div></div></sc-for>
+        </div>
+      </div>
+      <div style="background:#efe9ff;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
+        <div style="display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Score trend</h3><span style="font:700 12px Manrope,sans-serif;color:#5236b8">{{ trendDelta }}</span></div>
+        <svg viewBox="0 0 300 120" preserveAspectRatio="none" style="width:100%;height:180px;overflow:visible">
+          <line x1="0" y1="40" x2="300" y2="40" stroke="#d9cffc" stroke-dasharray="4 4"></line>
+          <line x1="0" y1="80" x2="300" y2="80" stroke="#d9cffc" stroke-dasharray="4 4"></line>
+          <path d="{{ trendArea }}" fill="#7c5cff" opacity=".16"></path>
+          <polyline points="{{ trendPts }}" fill="none" stroke="#7c5cff" stroke-width="3" stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"></polyline>
+        </svg>
+        <div style="display:flex;justify-content:space-between"><sc-for list="{{ trend }}" as="t" hint-placeholder-count="6"><div style="display:flex;flex-direction:column;align-items:center;gap:2px"><span style="font:700 12px 'JetBrains Mono',monospace">{{ t.v }}</span><span style="font:700 11px Manrope,sans-serif;color:#5236b8">{{ t.m }}</span></div></sc-for></div>
+      </div>
+    </div>
+    <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
+      <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">KPI goals</h3><span style="font:600 12px Manrope,sans-serif;color:#8a8a93">Drag to update progress · weighted score {{ selfScore }}</span></div>
+      <sc-for list="{{ goals }}" as="g" hint-placeholder-count="5">
+        <div style="display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(160px,2fr) 56px;gap:16px;align-items:center;padding:12px 14px;border-radius:14px;background:{{ g.bg }}">
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:700 13px Manrope,sans-serif">{{ g.title }}</span><span style="font:600 11.5px Manrope,sans-serif;color:{{ g.fg }}">{{ g.kpi }} · weight {{ g.weight }}%</span></div>
+          <div style="position:relative;height:22px;display:flex;align-items:center">
+            <div style="position:absolute;left:0;right:0;height:8px;border-radius:8px;background:rgba(255,255,255,.9)"></div>
+            <div style="position:absolute;left:0;height:8px;border-radius:8px;width:{{ g.pct }};background:{{ g.ac }};transition:width .15s"></div>
+            <input type="range" min="0" max="100" value="{{ g.progress }}" onChange="{{ g.onProg }}" style="position:relative;width:100%;margin:0;opacity:0;cursor:pointer;height:22px">
+          </div>
+          <span style="font:700 14px 'JetBrains Mono',monospace;text-align:right">{{ g.pct }}</span>
+        </div>
+      </sc-for>
+    </div>
+    <sc-if value="{{ isTL }}" hint-placeholder-val="{{ false }}">
+      <form onSubmit="{{ submitAppraisal }}" style="background:#e4efff;border-radius:22px;padding:22px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex-basis:100%"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Manager appraisal</h3><div style="font:500 12.5px Manrope,sans-serif;color:#1d56b0;margin-top:4px">{{ appraisalNote }}</div></div>
+        <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#1d56b0">Rating<select name="rating" style="border:1px solid #c9dbf7;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;background:#fff"><option>5 — Outstanding</option><option selected="">4 — Exceeds expectations</option><option>3 — Meets expectations</option><option>2 — Needs improvement</option><option>1 — Unsatisfactory</option></select></label>
+        <label style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#1d56b0">Comment<input name="comment" required="" placeholder="Strengths, areas to grow" style="border:1px solid #c9dbf7;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+        <button type="submit" style="border:none;cursor:pointer;border-radius:11px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#3b82f6;color:#fff">Submit appraisal</button>
+      </form>
+    </sc-if>
+    <sc-if value="{{ isHR }}" hint-placeholder-val="{{ false }}">
+      <form onSubmit="{{ submitOverride }}" style="background:#ffe5eb;border-radius:22px;padding:22px;display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end">
+        <div style="flex-basis:100%"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">HR score override</h3><div style="font:500 12.5px Manrope,sans-serif;color:#a61e45;margin-top:4px">Overrides are recorded in the audit log. {{ appraisalNote }}</div></div>
+        <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#a61e45">Score (0–100)<input name="score" type="number" min="0" max="100" required="" style="width:120px;border:1px solid #f6c3cf;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+        <label style="flex:1;min-width:220px;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#a61e45">Reason<input name="reason" required="" placeholder="Calibration committee outcome" style="border:1px solid #f6c3cf;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+        <button type="submit" style="border:none;cursor:pointer;border-radius:11px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#f43f5e;color:#fff">Apply override</button>
+        <sc-if value="{{ hasOverride }}" hint-placeholder-val="{{ false }}"><button type="button" onClick="{{ clearOverride }}" style="border:1px solid #f6c3cf;cursor:pointer;border-radius:11px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#fff;color:#a61e45">Clear override</button></sc-if>
+      </form>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- TRAININGS -->
+  <sc-if value="{{ pg.train }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <sc-if value="{{ isHR }}" hint-placeholder-val="{{ false }}">
+      <form onSubmit="{{ addTraining }}" style="background:#fff;border:1px solid #ecebe7;border-radius:20px;padding:14px;display:flex;gap:10px;flex-wrap:wrap;align-items:center">
+        <span style="font:600 15px 'Bricolage Grotesque',sans-serif;padding:0 6px">Schedule training</span>
+        <input name="title" required="" placeholder="Training title" style="flex:2;min-width:200px;border:1px solid #e6e4df;border-radius:10px;padding:10px 12px;font:500 13px Manrope,sans-serif;outline:none">
+        <input name="date" type="date" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 12px;font:500 13px Manrope,sans-serif">
+        <select name="mode" style="border:1px solid #e6e4df;border-radius:10px;padding:10px 12px;font:500 13px Manrope,sans-serif;background:#fff"><option>Virtual</option><option>Hybrid</option><option>In-person</option></select>
+        <input name="seats" type="number" min="1" value="20" style="width:80px;border:1px solid #e6e4df;border-radius:10px;padding:10px 12px;font:500 13px Manrope,sans-serif">
+        <button type="submit" style="border:none;cursor:pointer;border-radius:10px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff">Publish</button>
+      </form>
+    </sc-if>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px">
+      <sc-for list="{{ trainings }}" as="t" hint-placeholder-count="5">
+        <div style="background:{{ t.bg }};border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;animation:fadeUp .45s both" style-hover="transform:translateY(-4px);box-shadow:0 18px 30px -18px rgba(20,20,30,.35)">
+          <span style="position:absolute;right:-24px;bottom:-24px;width:96px;height:96px;border-radius:24px;background:{{ t.ac }};opacity:.12;transform:rotate(20deg)"></span>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px">
+            <div style="display:flex;flex-direction:column;align-items:center;background:#fff;border-radius:12px;padding:6px 11px"><span style="font:800 10px Manrope,sans-serif;color:{{ t.fg }};text-transform:uppercase">{{ t.mon }}</span><span style="font:700 22px/1 'Bricolage Grotesque',sans-serif">{{ t.day }}</span></div>
+            <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:#fff;color:{{ t.fg }}">{{ t.statusL }}</span>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px"><span style="font:600 18px/1.2 'Bricolage Grotesque',sans-serif">{{ t.title }}</span><span style="font:600 12px Manrope,sans-serif;color:{{ t.fg }}">{{ t.time }} · {{ t.mode }} · {{ t.host }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#5c5c66">{{ t.seats }} seats left</span></div>
+          <div style="display:flex;gap:8px;position:relative">
+            <sc-if value="{{ t.isOpen }}" hint-placeholder-val="{{ false }}"><button onClick="{{ t.enroll }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#16161a;color:#fff">Enroll</button></sc-if>
+            <sc-if value="{{ t.isEnrolled }}" hint-placeholder-val="{{ false }}"><button onClick="{{ t.complete }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#fff;color:#16161a">Mark attended</button><button onClick="{{ t.unenroll }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 12px;font:700 12.5px Manrope,sans-serif;background:transparent;color:{{ t.fg }}">Withdraw</button></sc-if>
+            <sc-if value="{{ t.isDone }}" hint-placeholder-val="{{ false }}"><button onClick="{{ t.cert }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#fff;color:#16161a">View certificate</button></sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- EXIT -->
+  <sc-if value="{{ pg.exit }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <sc-if value="{{ showExitForm }}" hint-placeholder-val="{{ false }}">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">
+        <form onSubmit="{{ submitExit }}" style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
+          <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Submit resignation</h3>
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Primary reason<select name="reason" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;background:#fff"><option>Career growth</option><option>Higher studies</option><option>Relocation</option><option>Compensation</option><option>Personal reasons</option></select></label>
+          <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Comments<textarea name="comments" rows="3" placeholder="Optional note for your TL and HR" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;resize:vertical"></textarea></label>
+          <div style="background:#ffebdf;border-radius:12px;padding:12px 14px;font:600 12.5px Manrope,sans-serif;color:#a8480f">Notice period: 60 days · Last working day {{ lwdPreview }}</div>
+          <button type="submit" style="border:none;cursor:pointer;border-radius:11px;padding:11px;font:700 13px Manrope,sans-serif;background:#f97316;color:#fff">Submit resignation</button>
+        </form>
+        <div style="background:#ffebdf;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px">
+          <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">How exit works</h3>
+          <sc-for list="{{ exitSteps }}" as="x" hint-placeholder-count="6"><div style="display:flex;gap:12px;align-items:center;background:#fff;border-radius:12px;padding:10px 12px"><span style="width:26px;height:26px;border-radius:8px;background:#f97316;color:#fff;display:grid;place-items:center;font:800 12px Manrope,sans-serif">{{ x.i }}</span><span style="font:600 13px Manrope,sans-serif">{{ x.n }}</span></div></sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ showMyExit }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:24px;display:flex;flex-direction:column;gap:20px">
+        <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;align-items:flex-start">
+          <div><h3 style="margin:0;font:600 19px 'Bricolage Grotesque',sans-serif">Your exit is in progress</h3><div style="font:500 13px Manrope,sans-serif;color:#6b6b74;margin-top:4px">{{ myExit.reason }} · submitted {{ myExit.dateL }} · last working day {{ myExit.lwdL }}</div></div>
+          <sc-if value="{{ myExit.canWithdraw }}" hint-placeholder-val="{{ false }}"><button onClick="{{ withdrawExit }}" style="border:1px solid #e6e4df;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#fff">Withdraw resignation</button></sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:6px">
+          <sc-for list="{{ myExit.steps }}" as="x" hint-placeholder-count="6">
+            <div style="display:flex;flex-direction:column;gap:8px">
+              <div style="height:8px;border-radius:8px;background:{{ x.bar }};transition:background .5s"></div>
+              <span style="font:700 12px Manrope,sans-serif;color:{{ x.fg }}">{{ x.n }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isMgr }}" hint-placeholder-val="{{ false }}">
+      <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:10px">
+        <h3 style="margin:0 0 4px;font:600 17px 'Bricolage Grotesque',sans-serif">Exit requests</h3>
+        <sc-for list="{{ exitList }}" as="x" hint-placeholder-count="2">
+          <div style="display:flex;align-items:center;gap:14px;background:#fafaf8;border-radius:14px;padding:14px;flex-wrap:wrap">
+            <span style="width:40px;height:40px;border-radius:50%;background:{{ x.av }};display:grid;place-items:center;font:800 12px Manrope,sans-serif;flex:none">{{ x.ini }}</span>
+            <div style="flex:1;min-width:180px;display:flex;flex-direction:column;gap:6px">
+              <span style="font:700 13px Manrope,sans-serif">{{ x.who }} <span style="font-weight:500;color:#8a8a93">· {{ x.reason }} · LWD {{ x.lwdL }}</span></span>
+              <div style="height:6px;border-radius:6px;background:#ecebe7;overflow:hidden;max-width:360px"><div style="height:100%;width:{{ x.pct }};background:#f97316;border-radius:6px;transition:width .6s"></div></div>
+            </div>
+            <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:#ffebdf;color:#a8480f">{{ x.stage }}</span>
+            <sc-if value="{{ x.canAdv }}" hint-placeholder-val="{{ false }}"><button onClick="{{ x.adv }}" style="border:none;cursor:pointer;border-radius:10px;padding:8px 14px;font:700 12px Manrope,sans-serif;background:#16161a;color:#fff">Advance → {{ x.next }}</button></sc-if>
+          </div>
+        </sc-for>
+        <sc-if value="{{ noExits }}" hint-placeholder-val="{{ false }}"><div style="font:500 13px Manrope,sans-serif;color:#8a8a93">No open exit requests.</div></sc-if>
+      </div>
+    </sc-if>
+  </div>
+  </sc-if>
+
+  <!-- EMPLOYEES -->
+  <sc-if value="{{ pg.emps }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
+    <form onSubmit="{{ onboard }}" style="background:#fff4c9;border-radius:22px;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end">
+      <div style="grid-column:1/-1"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Onboard new employee</h3></div>
+      <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Full name<input name="name" required="" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Work email<input name="email" type="email" required="" placeholder="name@nitp.in" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Department<select name="dept" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;background:#fff"><option>Platform</option><option>Payroll</option><option>Design</option><option>Sales</option><option>People Ops</option></select></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Designation<input name="title" required="" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Joining date<input name="doj" type="date" required="" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif"></label>
+      <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Annual CTC (₹)<input name="ctc" type="number" min="100000" required="" placeholder="900000" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
+      <button type="submit" style="border:none;cursor:pointer;border-radius:11px;padding:11px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff">Create &amp; start onboarding</button>
+    </form>
+    <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:6px;overflow-x:auto">
+      <h3 style="margin:0 0 8px;font:600 17px 'Bricolage Grotesque',sans-serif">Directory · {{ empCount }} people</h3>
+      <sc-for list="{{ empList }}" as="x" hint-placeholder-count="6">
+        <div style="display:grid;grid-template-columns:minmax(200px,1.6fr) 1fr 1fr minmax(200px,1.6fr);gap:12px;align-items:center;padding:10px;border-radius:12px;min-width:680px;animation:fadeUp .4s both" style-hover="background:#fafaf8">
+          <div style="display:flex;align-items:center;gap:10px"><span style="width:34px;height:34px;border-radius:50%;background:{{ x.av }};display:grid;place-items:center;font:800 11.5px Manrope,sans-serif;flex:none">{{ x.ini }}</span><div style="display:flex;flex-direction:column"><span style="font:700 13px Manrope,sans-serif">{{ x.name }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#8a8a93">{{ x.title }}</span></div></div>
+          <span style="font:600 12.5px Manrope,sans-serif">{{ x.dept }}</span>
+          <span style="font:600 12px 'JetBrains Mono',monospace;color:#6b6b74">{{ x.dojL }}</span>
+          <div style="display:flex;align-items:center;gap:10px">
+            <span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ x.bg }};color:{{ x.fg }}">{{ x.status }}</span>
+            <sc-if value="{{ x.onb }}" hint-placeholder-val="{{ false }}">
+              <div style="flex:1;display:flex;flex-direction:column;gap:4px"><div style="height:6px;border-radius:6px;background:#efe9ff;overflow:hidden"><div style="height:100%;width:{{ x.pct }};background:#7c5cff;transition:width .5s"></div></div><span style="font:600 10.5px Manrope,sans-serif;color:#5236b8">Next: {{ x.next }}</span></div>
+              <button onClick="{{ x.adv }}" style="border:none;cursor:pointer;border-radius:8px;padding:6px 10px;font:700 11px Manrope,sans-serif;background:#7c5cff;color:#fff">Done ✓</button>
+            </sc-if>
+          </div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  <!-- AUDIT -->
+  <sc-if value="{{ pg.audit }}" hint-placeholder-val="{{ false }}">
+  <div style="display:flex;flex-direction:column;gap:16px;animation:fadeUp .5s both">
+    <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+      <input value="{{ aq }}" onChange="{{ onAq }}" placeholder="Search actions or people…" style="flex:1;min-width:220px;border:1px solid #e6e4df;border-radius:12px;padding:11px 14px;font:500 13px Manrope,sans-serif;background:#fff;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff">
+      <button onClick="{{ exportAudit }}" style="border:none;cursor:pointer;border-radius:12px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff">↓ Export CSV</button>
+    </div>
+    <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:10px 22px">
+      <sc-for list="{{ auditList }}" as="x" hint-placeholder-count="8">
+        <div style="display:flex;gap:14px;align-items:flex-start;padding:13px 0;border-bottom:1px solid #f3f2ef">
+          <span style="font:600 11.5px 'JetBrains Mono',monospace;color:#8a8a93;width:96px;flex:none;padding-top:2px">{{ x.when }}</span>
+          <span style="width:10px;height:10px;border-radius:50%;background:{{ x.ac }};margin-top:5px;flex:none;box-shadow:0 0 0 4px {{ x.bg }}"></span>
+          <div style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px Manrope,sans-serif">{{ x.a }}</span><span style="font:500 11.5px Manrope,sans-serif;color:#8a8a93">by {{ x.who }}</span></div>
+        </div>
+      </sc-for>
+    </div>
+  </div>
+  </sc-if>
+
+  </div>
+</main>
+</div>
+
+<sc-if value="{{ cert }}" hint-placeholder-val="{{ false }}">
+  <div onClick="{{ closeCert }}" style="position:fixed;inset:0;background:rgba(22,22,26,.45);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:80;padding:20px;animation:pop .2s both">
+    <div onClick="{{ stop }}" style="width:min(640px,100%);background:#fff;border-radius:24px;padding:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.5)">
+      <div style="border:2px solid #efe9ff;border-radius:18px;padding:40px 36px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;background:#fdfcff">
+        <div style="display:flex;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#22a06b"></span><span style="width:10px;height:10px;border-radius:3px;background:#3b82f6"></span><span style="width:10px;height:10px;border-radius:3px;background:#f97316"></span><span style="width:10px;height:10px;border-radius:3px;background:#7c5cff"></span></div>
+        <span style="font:800 11px Manrope,sans-serif;letter-spacing:.14em;color:#5236b8;text-transform:uppercase">Certificate of completion</span>
+        <span style="font:500 13px Manrope,sans-serif;color:#6b6b74">This certifies that</span>
+        <span style="font:600 36px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.02em">{{ me.name }}</span>
+        <span style="font:500 13px Manrope,sans-serif;color:#6b6b74">has successfully completed</span>
+        <span style="font:700 18px Manrope,sans-serif">{{ cert.title }}</span>
+        <span style="font:600 12px 'JetBrains Mono',monospace;color:#8a8a93;margin-top:8px">{{ cert.dateL }} · ID {{ cert.cid }}</span>
+      </div>
+      <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 4px 4px">
+        <button onClick="{{ closeCert }}" style="border:1px solid #e6e4df;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#fff">Close</button>
+        <button onClick="{{ downloadCert }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#16161a;color:#fff">↓ Download</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+  <div style="position:fixed;right:24px;bottom:24px;z-index:90;display:flex;align-items:center;gap:12px;background:#16161a;color:#fff;border-radius:14px;padding:13px 18px 13px 14px;font:600 13px Manrope,sans-serif;box-shadow:0 20px 40px -18px rgba(0,0,0,.5);animation:toastIn .35s cubic-bezier(.2,.8,.2,1) both;max-width:420px">
+    <span style="width:10px;height:10px;border-radius:50%;background:{{ toast.c }};flex:none"></span>{{ toast.m }}
+  </div>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;startRole&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;emp&quot;,&quot;tl&quot;,&quot;hr&quot;],&quot;default&quot;:&quot;emp&quot;,&quot;tsType&quot;:&quot;'emp'|'tl'|'hr'&quot;},&quot;shiftStart&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;09:30&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;graceMins&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:15,&quot;min&quot;:0,&quot;max&quot;:60,&quot;tsType&quot;:&quot;number&quot;}}">
+const pad=n=>String(n).padStart(2,'0');
+const hm=d=>d?pad(d.getHours())+':'+pad(d.getMinutes()):'—';
+const inr=n=>'₹'+Math.round(n).toLocaleString('en-IN');
+const dl=s=>s?new Date(s+'T00:00:00').toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}):'—';
+const T={mint:['#e3f6ec','#0c6b44','#22a06b'],sky:['#e4efff','#1d56b0','#3b82f6'],lav:['#efe9ff','#5236b8','#7c5cff'],peach:['#ffebdf','#a8480f','#f97316'],lemon:['#fff4c9','#7a5a00','#e0a800'],rose:['#ffe5eb','#a61e45','#f43f5e'],gray:['#f1f0ed','#55555e','#9a9aa3']};
+const ST={Pending:'lemon',Approved:'mint',Rejected:'rose',Submitted:'sky','Changes requested':'peach',Paid:'mint',Draft:'lemon',Active:'mint',Onboarding:'lav',In:'mint',Late:'lemon',WFH:'sky','On leave':'lav','Not punched':'gray','Punched out':'gray'};
+const bd=s=>{const t=T[ST[s]||'gray'];return{bg:t[0],fg:t[1],ac:t[2]}};
+const U={emp:{name:'Aarav Mehta',first:'Aarav',title:'Software Engineer · Platform',ini:'AM',id:'NITP-1042'},tl:{name:'Priya Nair',first:'Priya',title:'Team Leader · Platform',ini:'PN',id:'NITP-0871'},hr:{name:'Kavya Rao',first:'Kavya',title:'HR Admin · People Ops',ini:'KR',id:'NITP-0103'}};
+const RN={emp:'Employee',tl:'Team Leader',hr:'HR Admin'};
+const NAV=[['dash','Dashboard','sky','emp tl hr'],['att','Attendance','mint','emp tl hr'],['team','Team Live','peach','tl hr'],['track','Track Sheet','lav','emp tl hr'],['tasks','Tasks','lemon','emp tl hr'],['leave','Leave & WFH','rose','emp tl hr'],['pay','Payroll','mint','emp tl hr'],['perf','Performance','sky','emp tl hr'],['train','Trainings','lav','emp tl hr'],['exit','Exit','peach','emp tl hr'],['emps','Employees','lemon','hr'],['audit','Audit Log','rose','hr']];
+const TITLES={dash:'Overview',att:'Time',team:'Time',track:'Work',tasks:'Work',leave:'Time off',pay:'Money',perf:'Growth',train:'Growth',exit:'Lifecycle',emps:'People',audit:'Compliance'};
+const wdays=(a,b)=>{let n=0;const d=new Date(a+'T00:00:00'),e=new Date(b+'T00:00:00');while(d<=e){const w=d.getDay();if(w&&w<6)n++;d.setDate(d.getDate()+1)}return n};
+const ini=n=>n.split(' ').map(x=>x[0]).join('').slice(0,2).toUpperCase();
+const AV=['#e3f6ec','#e4efff','#efe9ff','#ffebdf','#fff4c9','#ffe5eb'];
+const avc=n=>AV[(n.charCodeAt(0)+n.length)%6];
+const CAL={P:['mint','Present'],L:['lemon','Late'],W:['sky','WFH'],V:['lav','Leave'],O:['gray','Weekend']};
+function genAtt(){const pat='PPLPWPPPVPPLPPW';const o=[];for(let d=1;d<=30;d++){const w=new Date(2026,10,d).getDay();const s=d>16?'F':d===16?'T':(w===0||w===6)?'O':pat[d%15];const i=d%6;o.push({d,w,s,inT:s==='P'?'09:'+(18+i):s==='L'?'09:'+(50+i):s==='W'?'09:'+(10+i):'—',outT:s==='P'||s==='L'?'18:'+(32+i*3):s==='W'?'18:'+(15+i*4):'—',hrs:s==='P'?8.8+i*.1:s==='L'?8.2+i*.1:s==='W'?8.6+i*.1:0})}return o}
+const TEAM=[['Aarav Mehta','Software Engineer','In','09:24'],['Rohan Das','Backend Engineer','Late','10:07'],['Sneha Iyer','QA Engineer','WFH','09:12'],['Vikram Singh','DevOps Engineer','In','09:02'],['Meera Joshi','UI Designer','On leave',''],['Karan Patel','Frontend Engineer','Not punched',''],['Ananya Gupta','Data Analyst','In','09:31'],['Ishaan Verma','Intern','Late','10:21']];
+const EARN=[['Basic',42000],['HRA',21000],['Special Allowance',25500],['Conveyance',1600],['Medical',1250]];
+const GROSS=91350;
+function slipCalc(lop){const la=Math.round(GROSS/30*lop);const ded=[['PF (12% capped)',1800],['ESI (n/a > ₹21k)',0],['Professional Tax',200],['TDS',7850],['LOP · '+lop+'d',la]];const td=ded.reduce((a,b)=>a+b[1],0);return{earn:EARN.map(([l,v])=>({l,v:inr(v)})),ded:ded.map(([l,v])=>({l,v:v?'−'+inr(v):'₹0'})),gross:inr(GROSS),tded:inr(td),net:inr(GROSS-td),netN:GROSS-td}}
+const EXIT_STEPS=['Submitted','TL approval','HR clearance','Asset handover','Full & final','Exit interview'];
+const ONB=['Offer signed','Documents verified','Laptop issued','Accounts created','Induction done'];
+const RUN=['Lock attendance','Compute LOP','PF / ESI / TDS','Generate payslips','Disburse'];
+const PROJ_C={'Attendance API':'lav','Payroll Engine':'mint','Mobile App':'sky','Internal Tools':'lemon','Client — Zenith Bank':'peach'};
+const at=(h,m)=>new Date(2026,10,16,h,m);
+function dlFile(name,content,type){try{const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();return true}catch(e){return false}}
+
+class Component extends DCLogic{
+  state={role:this.props.startRole||'emp',page:'dash',now:new Date(),punchIn:null,punchOut:null,late:false,early:false,ip:'103.21.58.'+(40+Math.floor(Math.random()*180)),att:genAtt(),
+    regs:[{id:1,who:'Aarav Mehta',date:'2026-11-11',type:'Missed punch-out',time:'18:42',reason:'Left directly from client site.',status:'Approved'},{id:2,who:'Rohan Das',date:'2026-11-13',type:'Missed punch-in',time:'09:20',reason:'Biometric terminal offline at gate 2.',status:'Pending'},{id:3,who:'Sneha Iyer',date:'2026-11-12',type:'Wrong punch-out',time:'19:05',reason:'Punched out before release call.',status:'Pending'}],
+    tracks:[{id:1,who:'Aarav Mehta',date:'2026-11-16',project:'Attendance API',hours:3.5,desc:'IP & timezone capture for punch endpoint + unit tests',link:'https://github.com/nitp/attendance/pull/412',file:'',status:'Submitted'},{id:2,who:'Aarav Mehta',date:'2026-11-13',project:'Payroll Engine',hours:6,desc:'LOP deduction rules for mid-month joiners',link:'',file:'lop-rules.pdf',status:'Approved'},{id:3,who:'Aarav Mehta',date:'2026-11-12',project:'Internal Tools',hours:4,desc:'Audit log export to CSV',link:'',file:'',status:'Approved'},{id:6,who:'Aarav Mehta',date:'2026-11-11',project:'Attendance API',hours:7,desc:'Late-coming detection with grace window',link:'',file:'',status:'Approved'},{id:4,who:'Rohan Das',date:'2026-11-16',project:'Payroll Engine',hours:5,desc:'PF/ESI slab config migration',link:'https://github.com/nitp/payroll/pull/88',file:'',status:'Submitted'},{id:5,who:'Sneha Iyer',date:'2026-11-13',project:'Mobile App',hours:7,desc:'Regression suite for leave apply flow',link:'',file:'test-report.xlsx',status:'Submitted'}],
+    tasks:[{id:1,title:'Integrate punch API with mobile app',who:'Aarav Mehta',pri:'High',due:'2026-11-20',col:1},{id:2,title:'Write Prisma migration for WFH table',who:'Aarav Mehta',pri:'Medium',due:'2026-11-18',col:0},{id:3,title:'TDS slab update for FY 26-27',who:'Rohan Das',pri:'High',due:'2026-11-19',col:2},{id:4,title:'QA: payslip PDF rendering',who:'Sneha Iyer',pri:'Medium',due:'2026-11-21',col:1},{id:5,title:'NextAuth session refresh bug',who:'Vikram Singh',pri:'Low',due:'2026-11-25',col:0},{id:6,title:'Recharts dashboard for TL',who:'Ananya Gupta',pri:'Medium',due:'2026-11-14',col:3},{id:7,title:'Leave quota seed script',who:'Aarav Mehta',pri:'Low',due:'2026-11-10',col:3}],
+    leaves:[{id:1,who:'Aarav Mehta',type:'Casual',from:'2026-11-09',to:'2026-11-09',days:1,lop:0,reason:'Family function',status:'Approved'},{id:2,who:'Meera Joshi',type:'Sick',from:'2026-11-16',to:'2026-11-18',days:3,lop:0,reason:'Viral fever, doctor advised rest',status:'Pending'},{id:3,who:'Karan Patel',type:'Earned',from:'2026-12-22',to:'2026-12-31',days:8,lop:0,reason:'Year-end vacation',status:'Pending'}],
+    wfh:[{id:11,who:'Aarav Mehta',date:'2026-11-05',reason:'Internet installation at new flat',status:'Approved'},{id:12,who:'Sneha Iyer',date:'2026-11-17',reason:'Device testing setup at home',status:'Pending'}],
+    quotas:{Casual:[12,4],Sick:[8,2],Earned:[15,6],'Comp-off':[2,0]},leaveTab:'leave',lf:{},slip:0,run:-1,runDone:false,
+    goals:[{id:1,title:'Ship attendance v2 API',kpi:'Release by Dec 15',weight:30,progress:80,tone:'sky'},{id:2,title:'Reduce p95 latency to 200ms',kpi:'Now 260ms',weight:25,progress:55,tone:'lav'},{id:3,title:'Code review turnaround < 24h',kpi:'92% within SLA',weight:20,progress:90,tone:'mint'},{id:4,title:'Mentor 2 interns',kpi:'Bi-weekly 1:1s',weight:15,progress:60,tone:'peach'},{id:5,title:'AWS Developer certification',kpi:'Exam booked',weight:10,progress:30,tone:'lemon'}],
+    override:null,appraisal:null,
+    trainings:[{id:1,title:'Secure Coding Essentials',date:'2026-11-20',time:'14:00–16:00',mode:'Virtual',host:'InfoSec',seats:12,tone:'sky',status:'open'},{id:2,title:'POSH Awareness 2026',date:'2026-11-24',time:'11:00–12:30',mode:'Auditorium B',host:'People Ops',seats:40,tone:'rose',status:'enrolled'},{id:3,title:'Leading High-Trust Teams',date:'2026-12-02',time:'10:00–13:00',mode:'Hybrid',host:'L&D',seats:18,tone:'lav',status:'open'},{id:4,title:'Advanced PostgreSQL Tuning',date:'2026-10-14',time:'15:00–17:00',mode:'Virtual',host:'Platform Guild',seats:0,tone:'mint',status:'completed'},{id:5,title:'Effective Written Communication',date:'2026-09-09',time:'10:00–12:00',mode:'In-person',host:'L&D',seats:0,tone:'peach',status:'completed'}],
+    cert:null,myExit:null,exits:[{id:91,who:'Ishaan Verma',date:'2026-11-03',lwd:'2027-01-02',reason:'Higher studies',step:2}],
+    emps:[{id:1,name:'Aarav Mehta',dept:'Platform',title:'Software Engineer',doj:'2023-07-03',ctc:1200000,step:5},{id:2,name:'Priya Nair',dept:'Platform',title:'Team Leader',doj:'2019-02-11',ctc:2400000,step:5},{id:3,name:'Rohan Das',dept:'Payroll',title:'Backend Engineer',doj:'2022-05-16',ctc:1100000,step:5},{id:4,name:'Sneha Iyer',dept:'Platform',title:'QA Engineer',doj:'2021-09-01',ctc:950000,step:5},{id:5,name:'Meera Joshi',dept:'Design',title:'UI Designer',doj:'2024-01-08',ctc:1000000,step:5},{id:6,name:'Ananya Gupta',dept:'Platform',title:'Data Analyst',doj:'2024-06-17',ctc:900000,step:5},{id:7,name:'Neha Kulkarni',dept:'Sales',title:'Account Executive',doj:'2026-11-17',ctc:800000,step:2}],
+    audit:[{id:1,t:at(9,2),who:'Vikram Singh',a:'Punched in at 09:02',tone:'mint'},{id:2,t:at(9,12),who:'Sneha Iyer',a:'Punched in (WFH) at 09:12',tone:'sky'},{id:3,t:at(8,40),who:'Kavya Rao',a:'Onboarding started for Neha Kulkarni',tone:'lemon'},{id:4,t:new Date(2026,10,15,18,5),who:'Priya Nair',a:'Approved leave for Aarav Mehta (Casual, 1 day)',tone:'mint'},{id:5,t:new Date(2026,10,14,11,30),who:'Kavya Rao',a:'Published training: Secure Coding Essentials',tone:'lav'}],
+    toast:null,notif:false,q:'',aq:'',teamF:'All'};
+
+  componentDidMount(){this._t=setInterval(()=>this.setState({now:new Date()}),1000)}
+  componentWillUnmount(){clearInterval(this._t);clearTimeout(this._tt);clearTimeout(this._rt)}
+
+  me(){return U[this.state.role]}
+  go=k=>this.setState({page:k,notif:false,q:''});
+  log=(a,tone='sky')=>this.setState(s=>({audit:[{id:Math.random(),t:new Date(),who:U[s.role].name,a,tone},...s.audit]}));
+  toast=(m,tone='mint')=>{clearTimeout(this._tt);this.setState({toast:{m,c:T[tone][2]}});this._tt=setTimeout(()=>this.setState({toast:null}),2800)};
+  form=e=>{e.preventDefault();return Object.fromEntries(new FormData(e.target))};
+  lateLimit(){const [h,m]=(this.props.shiftStart||'09:30').split(':').map(Number);return h*60+m+(this.props.graceMins??15)}
+
+  punch=()=>{const n=new Date(),s=this.state,mins=n.getHours()*60+n.getMinutes();
+    if(!s.punchIn){const late=mins>this.lateLimit();this.setState({punchIn:n,punchOut:null,late});this.log(`Punched in at ${hm(n)} from ${s.ip}${late?' — late':''}`,late?'lemon':'mint');this.toast(late?`Punched in ${hm(n)} — marked late`:`Punched in at ${hm(n)}. Have a good day!`,late?'lemon':'mint')}
+    else if(!s.punchOut){const early=mins<this.lateLimit()-15+9*60;this.setState({punchOut:n,early});this.log(`Punched out at ${hm(n)}${early?' — early leaving':''}`,early?'rose':'sky');this.toast(early?'Punched out — flagged as early leaving':'Punched out. See you tomorrow!',early?'rose':'sky')}
+    else this.toast('Already punched out today. Raise a regularisation if needed.','sky')};
+
+  submitReg=e=>{const f=this.form(e);this.setState(s=>({regs:[{id:Date.now(),who:this.me().name,...f,status:'Pending'},...s.regs]}));this.log(`Requested regularisation: ${f.type} on ${dl(f.date)}`,'lemon');this.toast('Regularisation sent for approval','lemon');e.target.reset()};
+  decide=(key,x,status,label)=>{this.setState(s=>{const o={[key]:s[key].map(y=>y.id===x.id?{...y,status}:y)};if(key==='leaves'&&status==='Approved'&&x.who===U.emp.name&&s.quotas[x.type]){const q={...s.quotas},[t,u]=q[x.type];q[x.type]=[t,Math.min(t,u+x.days-x.lop)];o.quotas=q}return o});this.log(`${status} ${label}`,status==='Rejected'?'rose':'mint');this.toast(`${label}: ${status.toLowerCase()}`,status==='Rejected'?'rose':'mint')};
+
+  submitTrack=e=>{const f=this.form(e);const file=f.file&&f.file.name?f.file.name:'';this.setState(s=>({tracks:[{id:Date.now(),who:this.me().name,date:f.date,project:f.project,hours:+f.hours,desc:f.desc,link:f.link||'',file,status:'Submitted'},...s.tracks]}));this.log(`Logged ${f.hours}h on ${f.project}`,'lav');this.toast(`${f.hours}h logged to ${f.project}`,'lav');e.target.reset()};
+  addTask=e=>{const f=this.form(e);this.setState(s=>({tasks:[...s.tasks,{id:Date.now(),title:f.title,who:f.who,pri:f.pri,due:f.due,col:0}]}));this.log(`Assigned task “${f.title}” to ${f.who}`,'lemon');this.toast(`Task delegated to ${f.who}`,'lemon');e.target.reset()};
+  moveTask=(id,d)=>{this.setState(s=>({tasks:s.tasks.map(t=>t.id===id?{...t,col:Math.max(0,Math.min(3,t.col+d))}:t)}));const t=this.state.tasks.find(t=>t.id===id);if(t&&t.col+d===3){this.log(`Completed task “${t.title}”`,'mint');this.toast('Task completed','mint')}};
+
+  onLeaveForm=e=>{const f=Object.fromEntries(new FormData(e.currentTarget));this.setState({lf:f})};
+  submitLeave=e=>{const f=this.form(e);if(f.to<f.from)return this.toast('“To” date must be after “From”','rose');const days=wdays(f.from,f.to);if(!days)return this.toast('Selected range has no working days','rose');const [t,u]=this.state.quotas[f.type];const lop=Math.max(0,days-(t-u));this.setState(s=>({leaves:[{id:Date.now(),who:this.me().name,type:f.type,from:f.from,to:f.to,days,lop,reason:f.reason,status:'Pending'},...s.leaves],lf:{}}));this.log(`Applied ${days}d ${f.type} leave${lop?` (${lop}d LOP)`:''}`,'rose');this.toast(lop?`Leave submitted — ${lop} day(s) will be Loss of Pay`:'Leave request submitted',lop?'rose':'mint');e.target.reset()};
+  submitWfh=e=>{const f=this.form(e);this.setState(s=>({wfh:[{id:Date.now(),who:this.me().name,...f,status:'Pending'},...s.wfh]}));this.log(`Requested WFH for ${dl(f.date)}`,'sky');this.toast('WFH request submitted','sky');e.target.reset()};
+
+  runPayroll=()=>{if(this.state.runDone||this.state.run>=0)return;const step=i=>{this.setState({run:i});if(i<RUN.length){this._rt=setTimeout(()=>step(i+1),800)}else{this.setState({runDone:true,run:-1});this.log('Ran payroll for November 2026 — 7 payslips generated','mint');this.toast('Payroll complete. Payslips published.','mint')}};step(0)};
+  downloadSlip=()=>{const s=this.state,m=this.monthsData()[s.slip],p=slipCalc(m.lop);const rows=(a)=>a.map(x=>`<tr><td>${x.l}</td><td style="text-align:right">${x.v}</td></tr>`).join('');const html=`<!doctype html><meta charset="utf-8"><title>Payslip ${m.m}</title><body style="font-family:system-ui;max-width:640px;margin:40px auto;color:#16161a"><h2>NITP — Payslip ${m.m}</h2><p>Aarav Mehta · NITP-1042 · Software Engineer</p><table width="100%" cellpadding="6" style="border-collapse:collapse"><tr><th align="left">Earnings</th><th></th></tr>${rows(p.earn)}<tr><td><b>Gross</b></td><td align="right"><b>${p.gross}</b></td></tr><tr><th align="left">Deductions</th><th></th></tr>${rows(p.ded)}<tr><td><b>Total deductions</b></td><td align="right"><b>${p.tded}</b></td></tr></table><h3>Net pay: ${p.net}</h3></body>`;dlFile(`Payslip-${m.m.replace(' ','-')}.html`,html,'text/html');this.log(`Downloaded payslip for ${m.m}`,'mint');this.toast(`Payslip for ${m.m} downloaded`,'mint')};
+
+  setProg=(id,v)=>this.setState(s=>({goals:s.goals.map(g=>g.id===id?{...g,progress:v}:g)}));
+  submitAppraisal=e=>{const f=this.form(e);this.setState({appraisal:{...f,by:this.me().name}});this.log(`Appraised Aarav Mehta: ${f.rating}`,'sky');this.toast('Appraisal submitted','sky');e.target.reset()};
+  submitOverride=e=>{const f=this.form(e);const v=Math.max(0,Math.min(100,+f.score));this.setState({override:{score:v,reason:f.reason}});this.log(`Overrode performance score for Aarav Mehta → ${v} (${f.reason})`,'rose');this.toast(`Score overridden to ${v}`,'rose');e.target.reset()};
+  clearOverride=()=>{this.setState({override:null});this.log('Cleared performance override for Aarav Mehta','rose');this.toast('Override cleared','sky')};
+
+  setTr=(id,patch)=>this.setState(s=>({trainings:s.trainings.map(t=>t.id===id?{...t,...patch(t)}:t)}));
+  addTraining=e=>{const f=this.form(e);const tones=['sky','lav','mint','peach','lemon','rose'];this.setState(s=>({trainings:[{id:Date.now(),title:f.title,date:f.date,time:'10:00–12:00',mode:f.mode,host:'People Ops',seats:+f.seats||20,tone:tones[s.trainings.length%6],status:'open'},...s.trainings]}));this.log(`Published training: ${f.title}`,'lav');this.toast('Training published','lav');e.target.reset()};
+  downloadCert=()=>{const c=this.state.cert;dlFile(`Certificate-${c.cid}.html`,`<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;text-align:center;padding:80px"><p style="letter-spacing:.2em">CERTIFICATE OF COMPLETION</p><h1>${this.me().name}</h1><p>has successfully completed</p><h2>${c.title}</h2><p>${c.dateL} · ID ${c.cid}</p></body>`,'text/html');this.toast('Certificate downloaded','lav')};
+
+  submitExit=e=>{const f=this.form(e);this.setState({myExit:{who:this.me().name,date:'2026-11-16',lwd:'2027-01-15',reason:f.reason,comments:f.comments,step:1}});this.log('Submitted resignation','peach');this.toast('Resignation submitted to your TL','peach')};
+  withdrawExit=()=>{this.setState({myExit:null});this.log('Withdrew resignation','sky');this.toast('Resignation withdrawn','sky')};
+  advanceExit=id=>{const s=this.state;if(id==='me'){if(!s.myExit)return;this.setState({myExit:{...s.myExit,step:s.myExit.step+1}});this.log(`Exit for ${s.myExit.who}: ${EXIT_STEPS[s.myExit.step]} done`,'peach')}else{const x=s.exits.find(x=>x.id===id);this.setState({exits:s.exits.map(y=>y.id===id?{...y,step:y.step+1}:y)});this.log(`Exit for ${x.who}: ${EXIT_STEPS[x.step]} done`,'peach')}this.toast('Exit workflow advanced','peach')};
+
+  onboard=e=>{const f=this.form(e);this.setState(s=>({emps:[{id:Date.now(),name:f.name,dept:f.dept,title:f.title,doj:f.doj,ctc:+f.ctc,step:1},...s.emps]}));this.log(`Onboarding started for ${f.name} (${f.title})`,'lemon');this.toast(`${f.name} added — offer signed`,'lemon');e.target.reset()};
+  advOnb=id=>{const x=this.state.emps.find(e=>e.id===id);this.setState(s=>({emps:s.emps.map(e=>e.id===id?{...e,step:e.step+1}:e)}));this.log(`${x.name}: ${ONB[x.step]}`,'lemon');this.toast(x.step+1>=5?`${x.name} is now active`:`${ONB[x.step]} ✓`,'lemon')};
+
+  monthsData(){const s=this.state;const novLop=s.leaves.filter(l=>l.who===U.emp.name&&l.status==='Approved').reduce((a,l)=>a+l.lop,0);return[{m:'Nov 2026',lop:novLop,st:s.runDone?'Paid':'Draft'},{m:'Oct 2026',lop:0,st:'Paid'},{m:'Sep 2026',lop:1,st:'Paid'},{m:'Aug 2026',lop:0,st:'Paid'},{m:'Jul 2026',lop:0,st:'Paid'},{m:'Jun 2026',lop:2,st:'Paid'}]}
+
+  renderVals(){
+    const s=this.state,r=s.role,me=U[r],now=s.now,isMgr=r!=='emp';
+    const pg={[s.page]:true};
+    const pendLeave=s.leaves.filter(x=>x.status==='Pending').length+s.wfh.filter(x=>x.status==='Pending').length;
+    const pendRegsL=s.regs.filter(x=>x.status==='Pending');
+    const pendTracks=s.tracks.filter(x=>x.status==='Submitted'&&x.who!==me.name).length;
+    const navItems=NAV.filter(n=>n[3].includes(r)).map(([k,l,t])=>({k,l,dot:T[t][2],bg:s.page===k?'#16161a':'transparent',fg:s.page===k?'#fff':'#4a4a52',go:()=>this.go(k),badge:isMgr&&k==='leave'&&pendLeave?String(pendLeave):isMgr&&k==='att'&&pendRegsL.length?String(pendRegsL.length):''}));
+    const roles=['emp','tl','hr'].map(k=>({l:k==='emp'?'Emp':k.toUpperCase(),bg:r===k?'#fff':'transparent',fg:r===k?'#16161a':'#6b6b74',sh:r===k?'0 1px 3px rgba(0,0,0,.12)':'none',go:()=>{this.setState({role:k,page:'dash',notif:false});this.toast(`Viewing as ${RN[k]} — ${U[k].name}`,'lav')}}));
+    // clock & punch
+    const ms=s.punchIn?((s.punchOut||now)-s.punchIn):0;
+    const hh=Math.floor(ms/3600000),mm=Math.floor(ms/60000)%60,ss=Math.floor(ms/1000)%60;
+    const clock=`${pad(now.getHours())}:${pad(now.getMinutes())}:${pad(now.getSeconds())}`;
+    const pills=[];if(!s.punchIn)pills.push({t:'Not punched in',...bd('Submitted')});else pills.push(s.late?{t:'Late arrival',...bd('Pending')}:{t:'On time',...bd('Approved')});if(s.punchOut)pills.push(s.early?{t:'Early leaving',...bd('Rejected')}:{t:'Shift complete',...bd('Approved')});
+    const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+    const shift=this.props.shiftStart||'09:30';const [sh,sm]=shift.split(':').map(Number);const shiftLabel=`${shift}–${pad(sh+9)}:${pad(sm)}`;
+    const punchMeta=[{k:'Punch in',v:hm(s.punchIn)},{k:'Punch out',v:hm(s.punchOut)},{k:'IP address',v:s.ip},{k:'Timezone',v:tz}];
+    // calendar
+    const todayS=s.punchIn?(s.late?'L':'P'):null;
+    const cal=s.att.map(a=>{let k=a.s;if(k==='T'){if(todayS)k=todayS;else return{d:a.d,bg:'#fff',fg:'#16161a',bd:'2px solid #16161a',tip:'Today — not punched in'}}if(k==='F')return{d:a.d,bg:'#fafaf8',fg:'#c4c2bc',bd:'1px dashed #e6e4df',tip:'Upcoming'};const t=T[CAL[k][0]];return{d:a.d,bg:t[0],fg:t[1],bd:'1px solid transparent',tip:`Nov ${a.d}: ${CAL[k][1]}${a.inT!=='—'?` · ${a.inT}–${a.outT}`:''}`}});
+    const cnt=k=>s.att.filter(a=>a.s===k).length+(todayS===k?1:0);
+    const attSummary=[['P','Present'],['L','Late'],['W','WFH'],['V','Leave']].map(([k,l])=>({n:cnt(k),l,bg:T[CAL[k][0]][0],fg:T[CAL[k][0]][1]}));
+    const past=s.att.filter(a=>a.d<16&&a.s!=='O').reverse();
+    const records=[];if(s.punchIn)records.push({date:'Today',inT:hm(s.punchIn),outT:hm(s.punchOut),hrs:(ms/3600000).toFixed(1),st:s.late?'Late':'Present',...bd(s.late?'Pending':'Approved')});
+    past.slice(0,7).forEach(a=>{const lab={P:'Present',L:'Late',W:'WFH',V:'Leave'}[a.s];const t=T[CAL[a.s][0]];records.push({date:new Date(2026,10,a.d).toLocaleDateString('en-IN',{weekday:'short',day:'numeric',month:'short'}),inT:a.inT,outT:a.outT,hrs:a.hrs?a.hrs.toFixed(1):'—',st:lab,bg:t[0],fg:t[1]})});
+    const wk=past.slice(0,s.punchIn?6:7).reverse();const week=wk.map((a,i)=>({h:a.hrs?a.hrs.toFixed(1):'0',l:new Date(2026,10,a.d).toLocaleDateString('en-IN',{weekday:'short'}),pct:Math.max(4,a.hrs/10*100)+'%',bg:a.s==='V'?'#efe9ff':a.s==='L'?'#ffd96b':a.s==='W'?'#9cc3ff':'#8ee0b6',delay:i*60+'ms'}));
+    if(s.punchIn){const h=ms/3600000;week.push({h:h.toFixed(1),l:'Today',pct:Math.max(4,Math.min(100,h/10*100))+'%',bg:'#7c5cff',delay:'360ms'})}
+    const weekHrs=week.reduce((a,w)=>a+ +w.h,0).toFixed(1);
+    const myRegs=s.regs.filter(x=>x.who===me.name).slice(0,3).map(x=>({...x,dateL:dl(x.date),...bd(x.status)}));
+    const pendRegs=pendRegsL.map(x=>({...x,dateL:dl(x.date),ini:ini(x.who),av:avc(x.who),app:()=>this.decide('regs',x,'Approved',`regularisation for ${x.who}`),rej:()=>this.decide('regs',x,'Rejected',`regularisation for ${x.who}`)}));
+    // team
+    const team=TEAM.map(([n,ro,st,t])=>{let h=0,tt=t;if(n===U.emp.name){st=!s.punchIn?'Not punched':s.punchOut?'Punched out':s.late?'Late':'In';tt=s.punchIn?hm(s.punchIn):'';h=ms/3600000}else if(t){const [a,b]=t.split(':').map(Number);const d=new Date(now);d.setHours(a,b,0,0);h=Math.max(0,Math.min(9.5,(now-d)/3600000))}const b=bd(st);return{n,r:ro,s:st,t:tt||'—',h:h.toFixed(1)+'h',pct:Math.min(100,h/9*100)+'%',ini:ini(n),av:avc(n),dot:b.ac,bg:b.bg,fg:b.fg}});
+    const tc=k=>team.filter(m=>k==='In'?(m.s==='In'||m.s==='Late'||m.s==='Punched out'):m.s===k).length;
+    const teamSummary=['All','In','Late','WFH','On leave','Not punched'].map(k=>{const t=k==='All'?T.gray:T[ST[k]];return{l:k==='All'?'Team size':k==='In'?'In office':k,n:k==='All'?team.length:tc(k),bg:t[0],fg:t[1],bd:s.teamF===k?'2px solid #16161a':'2px solid transparent',go:()=>this.setState({teamF:k})}});
+    const teamList=s.teamF==='All'?team:team.filter(m=>s.teamF==='In'?(m.s==='In'||m.s==='Late'||m.s==='Punched out'):m.s===s.teamF);
+    // tracks
+    const myTracks=s.tracks.filter(x=>x.who===me.name);
+    const trackSrc=isMgr?s.tracks:myTracks;
+    const trackTotalN=(isMgr?s.tracks:myTracks).reduce((a,x)=>a+x.hours,0);
+    const projMap={};trackSrc.forEach(x=>projMap[x.project]=(projMap[x.project]||0)+x.hours);
+    const maxP=Math.max(1,...Object.values(projMap));
+    const projBreak=Object.entries(projMap).sort((a,b)=>b[1]-a[1]).map(([n,h])=>({n,h:h.toFixed(1),pct:h/maxP*100+'%',c:T[PROJ_C[n]||'gray'][2]}));
+    const trackList=trackSrc.map(x=>{const pc=T[PROJ_C[x.project]||'gray'];return{...x,dateL:dl(x.date),pbg:pc[0],pfg:pc[1],...bd(x.status),linkL:x.link?x.link.replace(/^https?:\/\//,'').slice(0,40):'',canReview:isMgr&&x.status==='Submitted'&&x.who!==me.name,app:()=>this.decide('tracks',x,'Approved',`track sheet of ${x.who} (${x.hours}h)`),chg:()=>this.decide('tracks',x,'Changes requested',`track sheet of ${x.who}`)}});
+    // tasks
+    const CN=[['To do','gray'],['In progress','sky'],['Review','lav'],['Completed','mint']];
+    const PRI={High:'rose',Medium:'lemon',Low:'mint'};
+    const cols=CN.map(([name,t],ci)=>{const items=s.tasks.filter(x=>x.col===ci).map(x=>({...x,dueL:dl(x.due).replace(' 2026',''),ini:ini(x.who),av:avc(x.who),pbg:T[PRI[x.pri]][0],pfg:T[PRI[x.pri]][1],left:()=>this.moveTask(x.id,-1),right:()=>this.moveTask(x.id,1),noLeft:ci===0,noRight:ci===3,lo:ci===0?.3:1,ro:ci===3?.3:1}));return{name,bg:t==='gray'?'#f1f0ed':T[t][0],fg:T[t][1],count:items.length,items}});
+    const openTasks=s.tasks.filter(x=>x.who===me.name&&x.col<3);
+    // leaves
+    const quotas=Object.entries(s.quotas).map(([n,[t,u]],i)=>{const tone=['sky','rose','mint','lav'][i];return{n,total:t,used:u,rem:t-u,deg:(t-u)/t*360,bg:T[tone][0],fg:T[tone][1],ac:T[tone][2]}});
+    const leaveRem=quotas.reduce((a,q)=>a+q.rem,0);
+    let lopPreview='Select dates to see working days and LOP',lopBg='#f3f2ef',lopFg='#55555e';
+    if(s.lf.from&&s.lf.to&&s.lf.to>=s.lf.from){const d=wdays(s.lf.from,s.lf.to),[t,u]=s.quotas[s.lf.type||'Casual'],lop=Math.max(0,d-(t-u));lopPreview=`${d} working day${d===1?'':'s'} · ${t-u} ${s.lf.type||'Casual'} left`+(lop?` · ${lop} day(s) Loss of Pay (−${inr(GROSS/30*lop)})`:' · No LOP');lopBg=lop?'#ffe5eb':'#e3f6ec';lopFg=lop?'#a61e45':'#0c6b44'}
+    const lv=s.leaves.filter(x=>isMgr||x.who===me.name).map(x=>({id:'l'+x.id,tag:x.type.slice(0,3).toUpperCase(),tbg:T.rose[0],tfg:T.rose[1],head:`${isMgr?x.who+' · ':''}${x.type} · ${x.days} day${x.days>1?'s':''}`,sub:`${dl(x.from)} → ${dl(x.to)} · ${x.reason}`,lop:x.lop?`${x.lop}d LOP`:'',status:x.status,...bd(x.status),canAct:isMgr&&x.status==='Pending'&&x.who!==me.name,showStatus:!(isMgr&&x.status==='Pending'&&x.who!==me.name),app:()=>this.decide('leaves',x,'Approved',`leave for ${x.who}`),rej:()=>this.decide('leaves',x,'Rejected',`leave for ${x.who}`)}));
+    const wf=s.wfh.filter(x=>isMgr||x.who===me.name).map(x=>({id:'w'+x.id,tag:'WFH',tbg:T.sky[0],tfg:T.sky[1],head:`${isMgr?x.who+' · ':''}Work from home`,sub:`${dl(x.date)} · ${x.reason}`,lop:'',status:x.status,...bd(x.status),canAct:isMgr&&x.status==='Pending'&&x.who!==me.name,showStatus:!(isMgr&&x.status==='Pending'&&x.who!==me.name),app:()=>this.decide('wfh',x,'Approved',`WFH for ${x.who}`),rej:()=>this.decide('wfh',x,'Rejected',`WFH for ${x.who}`)}));
+    const reqs=[...lv,...wf].sort((a,b)=>(b.canAct?1:0)-(a.canAct?1:0));
+    // payroll
+    const md=this.monthsData();const cur=md[s.slip];const slip=slipCalc(cur.lop);
+    const months=md.map((m,i)=>({m:m.m.replace(' 2026',''),bg:i===s.slip?'#16161a':'#fff',fg:i===s.slip?'#fff':'#16161a',bd:i===s.slip?'#16161a':'#e6e4df',go:()=>this.setState({slip:i})}));
+    const nets=md.map(m=>slipCalc(m.lop).netN).reverse();const maxN=Math.max(...nets),minN=Math.min(...nets);
+    const netTrend=md.slice().reverse().map((m,i)=>({m:m.m.slice(0,3),k:(nets[i]/1000).toFixed(1)+'k',pct:(55+45*(nets[i]-minN)/Math.max(1,maxN-minN))+'%',c:m.m===cur.m?'#22a06b':'#bfe9d3',delay:i*70+'ms'}));
+    const ctcSplit=[['Basic',504000,'#3b82f6'],['HRA',252000,'#7c5cff'],['Special',306000,'#22a06b'],['Allowances',34200,'#e0a800'],['Employer PF',103800,'#f97316']].map(([l,v,c])=>({l,v:inr(v),pct:(v/1200000*100).toFixed(1)+'%',c}));
+    const runSteps=RUN.map((n,i)=>{const done=s.runDone||(s.run>i),act=s.run===i;return{n,bar:done?'#22a06b':act?'linear-gradient(90deg,#33333b,#7c5cff,#33333b)':'#33333b',anim:act?'shimmer 1s linear infinite':'none',fg:done?'#8ee0b6':act?'#fff':'#77777f'}});
+    const register=s.emps.filter(e=>e.step>=5).map(e=>{const g=e.ctc/12*.9,pf=Math.min(1800,g*.4*.12)+200,tds=g*.09;return{name:e.name,g:inr(g),pf:inr(pf),tds:inr(tds),net:inr(g-pf-tds)}});
+    // performance
+    const tw=s.goals.reduce((a,g)=>a+g.weight,0);const selfScore=Math.round(s.goals.reduce((a,g)=>a+g.weight*g.progress,0)/tw);
+    const finalScore=s.override?s.override.score:selfScore;
+    const BANDS=[['Red',0,40,'rose'],['Yellow',40,60,'lemon'],['Green',60,85,'mint'],['Blue',85,100,'sky']];
+    const bi=BANDS.findIndex(b=>finalScore<b[2]||b[0]==='Blue');const bb=BANDS[bi];
+    const arc=(a0,a1)=>{const R=92,cx=120,cy=118,p=a=>[cx+R*Math.cos(Math.PI*(1-a/100)),cy-R*Math.sin(Math.PI*(1-a/100))];const[x0,y0]=p(a0),[x1,y1]=p(a1);return`M${x0.toFixed(1)} ${y0.toFixed(1)} A${R} ${R} 0 0 1 ${x1.toFixed(1)} ${y1.toFixed(1)}`};
+    const gaugeArcs=BANDS.map(([n,a,b,t],i)=>({d:arc(a+(i?0.8:0),b-(i<3?0.8:0)),c:T[t][2]}));
+    const trendV=[62,68,71,66,74,finalScore];const MO=['Jun','Jul','Aug','Sep','Oct','Nov'];
+    const pts=trendV.map((v,i)=>`${i*60},${(120-v*1.1).toFixed(1)}`);
+    const goals=s.goals.map(g=>({...g,pct:g.progress+'%',bg:T[g.tone][0],fg:T[g.tone][1],ac:T[g.tone][2],onProg:e=>this.setProg(g.id,+e.target.value)}));
+    const appraisalNote=s.appraisal?`Latest: ${s.appraisal.rating} by ${s.appraisal.by} — “${s.appraisal.comment}”`:'No manager appraisal yet for this cycle.';
+    // trainings
+    const trainings=s.trainings.map(t=>{const d=new Date(t.date+'T00:00:00');return{...t,mon:d.toLocaleDateString('en-IN',{month:'short'}),day:d.getDate(),bg:T[t.tone][0],fg:T[t.tone][1],ac:T[t.tone][2],statusL:t.status==='open'?'Open':t.status==='enrolled'?'Enrolled':'Completed',isOpen:t.status==='open',isEnrolled:t.status==='enrolled',isDone:t.status==='completed',
+      enroll:()=>{if(t.seats<1)return this.toast('No seats left','rose');this.setTr(t.id,x=>({status:'enrolled',seats:x.seats-1}));this.log(`Enrolled in ${t.title}`,'lav');this.toast(`Enrolled in ${t.title}`,'lav')},
+      unenroll:()=>{this.setTr(t.id,x=>({status:'open',seats:x.seats+1}));this.toast('Enrollment withdrawn','sky')},
+      complete:()=>{this.setTr(t.id,()=>({status:'completed'}));this.log(`Completed training: ${t.title}`,'mint');this.toast('Certificate issued','mint')},
+      cert:()=>this.setState({cert:{title:t.title,dateL:dl(t.date),cid:'NITP-C-'+(1000+t.id%9000)}})}});
+    const upTrain=trainings.filter(t=>!t.isDone).slice(0,3);
+    // exit
+    const stepsFor=st=>EXIT_STEPS.map((n,i)=>({n,bar:i<st?'#f97316':i===st?'linear-gradient(90deg,#f97316 40%,#ffd3b4 40%)':'#ecebe7',fg:i<=st?'#a8480f':'#9a9aa3'}));
+    const myExit=s.myExit?{...s.myExit,dateL:dl(s.myExit.date),lwdL:dl(s.myExit.lwd),steps:stepsFor(s.myExit.step),canWithdraw:s.myExit.step<2}:null;
+    const exAll=[...(s.myExit?[{...s.myExit,id:'me'}]:[]),...s.exits];
+    const exitList=exAll.map(x=>({...x,ini:ini(x.who),av:avc(x.who),lwdL:dl(x.lwd),pct:Math.min(100,x.step/6*100)+'%',stage:x.step>=6?'Exited':EXIT_STEPS[x.step],next:EXIT_STEPS[x.step+1]||'Close',canAdv:x.step<6&&!(r==='tl'&&x.step>=2),adv:()=>this.advanceExit(x.id)}));
+    // employees
+    const empList=s.emps.map(e=>({...e,ini:ini(e.name),av:avc(e.name),dojL:dl(e.doj),status:e.step>=5?'Active':'Onboarding',...bd(e.step>=5?'Active':'Onboarding'),onb:e.step<5,pct:e.step/5*100+'%',next:ONB[e.step]||'',adv:()=>this.advOnb(e.id)}));
+    // audit
+    const fmtW=t=>t.toLocaleDateString('en-IN',{day:'numeric',month:'short'})+' · '+hm(t);
+    const aq=s.aq.toLowerCase();
+    const auditList=s.audit.filter(x=>!aq||(x.a+x.who).toLowerCase().includes(aq)).map(x=>({...x,when:fmtW(x.t),ac:T[x.tone][2],bg:T[x.tone][0]}));
+    const notifs=s.audit.slice(0,5).map(x=>({a:x.a,who:x.who,time:hm(x.t),ac:T[x.tone][2]}));
+    // stats
+    const go=k=>()=>this.go(k);
+    const presentN=tc('In')+tc('WFH');
+    const stats=(r==='emp'?[
+      ['Hours today',`${hh}h ${pad(mm)}m`,s.punchIn?(s.punchOut?'Day complete':'Clock running'):'Punch in to start','mint','att'],
+      ['Leave balance',`${leaveRem}d`,'Across 4 categories','rose','leave'],
+      ['Open tasks',String(openTasks.length),'On your board','lemon','tasks'],
+      ['Performance',String(finalScore),`${bb[0]} band`,'sky','perf']]
+    :r==='tl'?[
+      ['Team present',`${presentN}/${team.length}`,`${tc('Late')} late today`,'mint','team'],
+      ['Approvals',String(pendLeave+pendRegsL.length),'Leave, WFH & regularisation','rose','leave'],
+      ['Sheets to review',String(pendTracks),'Daily track sheets','lav','track'],
+      ['Team score','74','Avg. this cycle','sky','perf']]
+    :[
+      ['Headcount',String(s.emps.length),`${s.emps.filter(e=>e.step<5).length} onboarding`,'lemon','emps'],
+      ['Present today',`${presentN}/${team.length}`,`${tc('On leave')} on leave`,'mint','team'],
+      ['Nov payroll',s.runDone?'Paid':'Draft',s.runDone?'Payslips published':'Ready to run','sky','pay'],
+      ['Open exits',String(exAll.filter(x=>x.step<6).length),'In workflow','peach','exit']]
+    ).map(([label,value,sub,t,k],i)=>({label,value,sub,bg:T[t][0],fg:T[t][1],ac:T[t][2],go:go(k),delay:i*70+'ms'}));
+    let dashList,dashListTitle;
+    if(isMgr){dashListTitle='Needs your approval';dashList=[...s.leaves.filter(x=>x.status==='Pending').map(x=>({tag:'LV',t:`${x.who} · ${x.type} leave`,s:`${x.days} day(s) from ${dl(x.from)}`,bg:T.rose[0],fg:T.rose[1],go:go('leave')})),...s.wfh.filter(x=>x.status==='Pending').map(x=>({tag:'WFH',t:`${x.who} · WFH`,s:dl(x.date),bg:T.sky[0],fg:T.sky[1],go:go('leave')})),...pendRegsL.map(x=>({tag:'REG',t:`${x.who} · ${x.type}`,s:dl(x.date),bg:T.lemon[0],fg:T.lemon[1],go:go('att')}))].slice(0,4)}
+    else{dashListTitle='My tasks';dashList=openTasks.slice(0,4).map(x=>({tag:x.pri.slice(0,3).toUpperCase(),t:x.title,s:`Due ${dl(x.due)} · ${CN[x.col][0]}`,bg:T[PRI[x.pri]][0],fg:T[PRI[x.pri]][1],go:go('tasks')}))}
+    const h=now.getHours();
+    const qq=s.q.trim().toLowerCase();const qRes=qq?navItems.filter(n=>n.l.toLowerCase().includes(qq)):[];
+    const curNav=NAV.find(n=>n[0]===s.page);
+    return{
+      pg,nav:navItems,roles,me,roleName:RN[r],isMgr,isTL:r==='tl',isHR:r==='hr',
+      crumb:TITLES[s.page],pageTitle:curNav?curNav[1]:'',
+      q:s.q,onQ:e=>this.setState({q:e.target.value}),onQKey:e=>{if(e.key==='Enter'&&qRes[0])qRes[0].go();if(e.key==='Escape')this.setState({q:''})},qOpen:!!qq,qRes,qNone:!!qq&&!qRes.length,
+      toggleNotif:()=>this.setState(x=>({notif:!x.notif})),notifOpen:s.notif,notifs,notifCount:isMgr?(pendLeave+pendRegsL.length||''):'',
+      greeting:h<12?'Good morning':h<17?'Good afternoon':'Good evening',todayLong:now.toLocaleDateString('en-IN',{weekday:'long',day:'numeric',month:'long',year:'numeric'}),shiftLabel,clock,
+      stats,ringDeg:Math.min(360,ms/(9*3600000)*360),elapsedShort:`${pad(hh)}:${pad(mm)}`,pills,punch:this.punch,
+      punchLabel:!s.punchIn?'Punch In':!s.punchOut?'Punch Out':'Done',punchBg:!s.punchIn?'#22a06b':!s.punchOut?'#f43f5e':'#9a9aa3',canPunch:!s.punchOut,punchMeta,
+      week,weekHrs,dashList,dashListTitle,dashListEmpty:!dashList.length,upTrain,
+      dow:['S','M','T','W','T','F','S'],cal,attSummary,records,submitReg:this.submitReg,myRegs,pendRegs,pendRegCount:pendRegs.length,noPendRegs:!pendRegs.length,
+      teamSummary,teamList,
+      submitTrack:this.submitTrack,trackScope:isMgr?'Team hours logged':'Your hours this week',trackTotal:trackTotalN.toFixed(1),trackPct:Math.min(100,Math.round(trackTotalN/40*100))+'%',projBreak,trackList,trackListTitle:isMgr?`Team entries · ${pendTracks} awaiting review`:'Your entries',
+      addTask:this.addTask,taskVerb:isMgr?'Delegate task':'Add task',cols,
+      quotas,tabLeave:()=>this.setState({leaveTab:'leave'}),tabWfh:()=>this.setState({leaveTab:'wfh'}),isLeaveTab:s.leaveTab==='leave',isWfhTab:s.leaveTab==='wfh',
+      tabLeaveBg:s.leaveTab==='leave'?'#fff':'transparent',tabWfhBg:s.leaveTab==='wfh'?'#fff':'transparent',tabLeaveSh:s.leaveTab==='leave'?'0 1px 3px rgba(0,0,0,.12)':'none',tabWfhSh:s.leaveTab==='wfh'?'0 1px 3px rgba(0,0,0,.12)':'none',
+      onLeaveForm:this.onLeaveForm,submitLeave:this.submitLeave,submitWfh:this.submitWfh,lopPreview,lopBg,lopFg,reqs,reqTitle:isMgr?`Requests · ${pendLeave} pending`:'My requests',
+      runPayroll:this.runPayroll,runBusy:s.run>=0||s.runDone,runBtn:s.runDone?'✓ Completed':s.run>=0?'Running…':'Run payroll',runBtnBg:s.runDone?'#8ee0b6':'#fff',runSub:s.runDone?'Processed · 6 payslips published · ₹4.9L disbursed':'Attendance locked on 30 Nov · LOP from approved leaves applied automatically',runSteps,register,novStatus:s.runDone?'Paid':'Draft',
+      months,slip,slipMonth:cur.m,slipStatus:cur.st,slipBadge:bd(cur.st),slipDraft:cur.st==='Draft',slipPaid:30-cur.lop,downloadSlip:this.downloadSlip,ctcSplit,netTrend,
+      gaugeArcs,needleDeg:-90+finalScore*1.8,finalScore,selfScore,band:{n:bb[0],bg:T[bb[3]][0],fg:T[bb[3]][1]},overrideNote:s.override?' · HR override':'',
+      bands:BANDS.map(([n,a,b,t],i)=>({n,r:`${a}–${b}`,bg:T[t][0],fg:T[t][1],bd:i===bi?T[t][2]:'transparent'})),
+      trend:trendV.map((v,i)=>({v,m:MO[i]})),trendPts:pts.join(' '),trendArea:`M0 120 L${pts.join(' L')} L300 120 Z`,trendDelta:`${finalScore>=74?'+':''}${finalScore-74} vs Oct`,
+      goals,submitAppraisal:this.submitAppraisal,appraisalNote,submitOverride:this.submitOverride,clearOverride:this.clearOverride,hasOverride:!!s.override,
+      trainings,addTraining:this.addTraining,cert:s.cert,closeCert:()=>this.setState({cert:null}),stop:e=>e.stopPropagation(),downloadCert:this.downloadCert,
+      showExitForm:r==='emp'&&!s.myExit,showMyExit:r==='emp'&&!!s.myExit,myExit,submitExit:this.submitExit,withdrawExit:this.withdrawExit,lwdPreview:dl('2027-01-15'),exitSteps:EXIT_STEPS.map((n,i)=>({n,i:i+1})),exitList,noExits:!exitList.length,
+      onboard:this.onboard,empList,empCount:s.emps.length,
+      aq:s.aq,onAq:e=>this.setState({aq:e.target.value}),auditList,exportAudit:()=>{dlFile('nitp-audit-log.csv','time,who,action\n'+s.audit.map(x=>`"${fmtW(x.t)}","${x.who}","${x.a.replace(/"/g,"'")}"`).join('\n'),'text/csv');this.toast('Audit log exported','mint')},
+      toast:s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
