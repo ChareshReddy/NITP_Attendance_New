@@ -33,8 +33,10 @@ Every create / approve / reject writes to the audit log.
 
 1. **Create the project.** In Supabase, create a project and note the database password.
 2. **Fill in `.env`.** Copy `.env.example` to `.env`. In Supabase, click **Connect → ORMs → Prisma** and paste:
-   - `DATABASE_URL`: the *Transaction pooler* string (port **6543**), ending in `?pgbouncer=true&connection_limit=1`
-   - `DIRECT_URL`: the *Session pooler / direct* string (port **5432**)
+   - `DATABASE_URL`: the *Transaction pooler* string (port **6543**), ending in `?pgbouncer=true&connection_limit=1&schema=hrms`
+   - `DIRECT_URL`: the *Session pooler / direct* string (port **5432**), ending in `?schema=hrms`
+   - `connection_limit=1` suits Vercel (serverless). On your own machine or server, use `connection_limit=5&pool_timeout=30` so pages with many queries don't time out on a slow network.
+   - The app keeps its tables in their own `hrms` schema, so anything already in `public` is left alone. If the password has symbols, URL-encode them (for example `@` → `%40`).
    - `SESSION_SECRET`: run `node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"`
    - `APP_TIMEZONE`: keep `Asia/Kolkata` unless the office is elsewhere
 3. **Install, create tables, import the real data:**

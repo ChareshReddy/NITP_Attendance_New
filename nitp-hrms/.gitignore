@@ -8,3 +8,5 @@ next-env.d.ts
 .pglite/
 # Contains staff password hashes; keep it off GitHub.
 prisma/real_data.json
+
+*.local.md

@@ -11,7 +11,8 @@
     "db:migrate:dev": "prisma migrate dev",
     "db:seed": "tsx --env-file=.env prisma/seed.ts",
     "create-hr": "tsx --env-file=.env scripts/create-hr.ts",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate",
+    "test-accounts": "tsx --env-file=.env scripts/test-accounts.ts"
   },
   "dependencies": {
     "@prisma/client": "6.19.3",
