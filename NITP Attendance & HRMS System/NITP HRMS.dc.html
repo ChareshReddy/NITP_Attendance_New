@@ -3,9 +3,26 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NITP People HRMS</title>
+<meta name="description" content="Attendance, leave, payroll, performance and lifecycle workspace for NITP. Interactive demo with sample data.">
+<meta name="theme-color" content="#f7f7f5">
+<meta name="color-scheme" content="light">
+<style>
+html,body{background:#f7f7f5;color:#16161a;color-scheme:light}
+#dc-boot{position:fixed;inset:0;display:grid;place-items:center;background:#f7f7f5;font:600 14px Manrope,system-ui,sans-serif;color:#6b6b74;z-index:5}
+#dc-boot .b{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding:24px;max-width:360px}
+#dc-boot .logo{width:44px;height:44px;border-radius:13px;background:#16161a;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:9px}
+#dc-boot .logo i{border-radius:3px}
+#dc-boot .err{display:none;color:#a61e45}
+#dc-boot.failed .err{display:block}#dc-boot.failed .wait{display:none}
+body:has(#dc-root .sc-host) #dc-boot{display:none}
+</style>
 <script src="./support.js"></script>
 </head>
 <body>
+<div id="dc-boot" role="status" aria-live="polite"><div class="b"><div class="logo" aria-hidden="true"><i style="background:#22a06b"></i><i style="background:#3b82f6"></i><i style="background:#f97316"></i><i style="background:#7c5cff"></i></div><span class="wait">Loading NITP People…</span><span class="err">The app could not load. Check your connection and reload the page.</span></div></div>
+<noscript><div style="position:fixed;inset:0;display:grid;place-items:center;background:#f7f7f5;font:600 14px system-ui;color:#a61e45;z-index:6">NITP People needs JavaScript to run.</div></noscript>
+<script>setTimeout(function(){if(!document.querySelector('#dc-root .sc-host')){var b=document.getElementById('dc-boot');if(b)b.className='failed'}},15000)</script>
 <x-dc>
 <helmet>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -22,11 +39,42 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
 @keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
 @keyframes grow{from{transform:scaleY(0)}to{transform:scaleY(1)}}
 @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+html{-webkit-text-size-adjust:100%}
+body{overflow-x:hidden}
+button,input,select,textarea{font-family:inherit;color:inherit}
+button{min-height:36px}
+button:disabled{cursor:not-allowed!important;opacity:.55}
+:focus-visible{outline:2px solid #7c5cff!important;outline-offset:2px}
+input:focus-visible,select:focus-visible,textarea:focus-visible{outline:none!important;border-color:#7c5cff!important;box-shadow:0 0 0 4px #efe9ff!important}
+.goal-track:focus-within{outline:2px solid #7c5cff;outline-offset:4px;border-radius:8px}
+.tbl-row{min-width:560px}
+.app-nav{scrollbar-width:none}.app-nav::-webkit-scrollbar{display:none}
+.notif-pop{width:min(330px,calc(100vw - 32px))!important}
+@media (max-width:900px){
+ .app-shell{flex-direction:column!important}
+ .app-side{position:static!important;width:auto!important;height:auto!important;overflow:visible!important;border-right:none!important;border-bottom:1px solid #ecebe7;padding:14px 16px 10px!important;gap:12px!important}
+ .app-nav{flex-direction:row!important;overflow-x:auto;gap:4px!important;margin:0 -16px;padding:0 16px 4px}
+ .app-nav>button{flex:none;white-space:nowrap}
+ .app-side-foot{margin-top:0!important;flex-direction:row!important;align-items:center;flex-wrap:wrap;gap:10px!important}
+ .app-side-foot .user-card{display:none!important}
+ .app-header{padding:12px 16px!important}
+ .app-content{padding:20px 16px 64px!important}
+ .toast{left:16px!important;right:16px!important;bottom:calc(16px + env(safe-area-inset-bottom,0px))!important}
+}
+@media (max-width:560px){
+ .form-2{grid-template-columns:1fr!important}
+ .grid-4{grid-template-columns:repeat(2,1fr)!important}
+ .goal-row{grid-template-columns:1fr 56px!important}
+ .goal-row>:first-child{grid-column:1/-1}
+ .hide-sm{display:none!important}
+ .app-header h1{font-size:21px!important}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;animation-delay:0s!important;transition-duration:.001ms!important;scroll-behavior:auto!important}}
 </style>
 </helmet>
-<div style="display:flex;min-height:100vh;background:#f7f7f5">
+<div class="app-shell" style="display:flex;min-height:100vh;background:#f7f7f5">
 
-<aside style="width:240px;flex:none;position:sticky;top:0;height:100vh;background:#fff;border-right:1px solid #ecebe7;display:flex;flex-direction:column;padding:20px 14px;gap:18px;overflow-y:auto">
+<aside class="app-side" aria-label="Main navigation" style="width:240px;flex:none;position:sticky;top:0;height:100vh;background:#fff;border-right:1px solid #ecebe7;display:flex;flex-direction:column;padding:20px 14px;gap:18px;overflow-y:auto">
   <div style="display:flex;align-items:center;gap:11px;padding:0 6px">
     <div style="width:38px;height:38px;border-radius:12px;background:#16161a;display:grid;grid-template-columns:1fr 1fr;gap:3px;padding:8px">
       <span style="background:#22a06b;border-radius:3px"></span><span style="background:#3b82f6;border-radius:3px"></span><span style="background:#f97316;border-radius:3px"></span><span style="background:#7c5cff;border-radius:3px"></span>
@@ -36,23 +84,24 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
       <span style="font:600 11px Manrope,sans-serif;color:#8a8a93">Attendance &amp; HRMS</span>
     </div>
   </div>
-  <nav style="display:flex;flex-direction:column;gap:2px">
+  <nav class="app-nav" aria-label="Sections" style="display:flex;flex-direction:column;gap:2px">
     <sc-for list="{{ nav }}" as="n" hint-placeholder-count="10">
-      <button onClick="{{ n.go }}" style="display:flex;align-items:center;gap:11px;border:none;cursor:pointer;text-align:left;padding:10px 12px;border-radius:11px;background:{{ n.bg }};color:{{ n.fg }};font:600 13.5px Manrope,sans-serif;transition:background .2s,color .2s" style-hover="background:#f3f2ef;color:#16161a">
+      <button onClick="{{ n.go }}" aria-current="{{ n.cur }}" style="display:flex;align-items:center;gap:11px;border:none;cursor:pointer;text-align:left;padding:10px 12px;border-radius:11px;background:{{ n.bg }};color:{{ n.fg }};font:600 13.5px Manrope,sans-serif;transition:background .2s,color .2s" style-hover="background:#f3f2ef;color:#16161a">
         <span style="width:9px;height:9px;border-radius:3px;background:{{ n.dot }};flex:none"></span>
         <span style="flex:1">{{ n.l }}</span>
         <sc-if value="{{ n.badge }}" hint-placeholder-val="{{ false }}"><span style="font:700 10.5px Manrope,sans-serif;background:#f43f5e;color:#fff;border-radius:20px;padding:2px 7px">{{ n.badge }}</span></sc-if>
       </button>
     </sc-for>
   </nav>
-  <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
-    <div style="font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.08em;text-transform:uppercase;padding:0 6px">View as</div>
-    <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:#f3f2ef;border-radius:12px;padding:4px">
+  <div class="app-side-foot" style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+    <div id="viewas-l" style="font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.08em;text-transform:uppercase;padding:0 6px">View as</div>
+    <div role="group" aria-labelledby="viewas-l" style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;min-width:170px;background:#f3f2ef;border-radius:12px;padding:4px">
       <sc-for list="{{ roles }}" as="r" hint-placeholder-count="3">
-        <button onClick="{{ r.go }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 0;font:700 12px Manrope,sans-serif;background:{{ r.bg }};color:{{ r.fg }};box-shadow:{{ r.sh }};transition:all .2s">{{ r.l }}</button>
+        <button onClick="{{ r.go }}" aria-pressed="{{ r.on }}" aria-label="{{ r.full }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 0;font:700 12px Manrope,sans-serif;background:{{ r.bg }};color:{{ r.fg }};box-shadow:{{ r.sh }};transition:all .2s">{{ r.l }}</button>
       </sc-for>
     </div>
-    <div style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#efe9ff">
+    <div class="demo-note" style="display:flex;align-items:center;justify-content:space-between;gap:8px;padding:0 6px;font:600 11px Manrope,sans-serif;color:#8a8a93"><span>Demo · sample data</span><button onClick="{{ resetDemo }}" style="border:none;background:none;cursor:pointer;color:#5236b8;font:700 11px Manrope,sans-serif;padding:4px 0;min-height:0">{{ resetLabel }}</button></div>
+    <div class="user-card" style="display:flex;align-items:center;gap:10px;padding:12px;border-radius:14px;background:#efe9ff">
       <div style="width:36px;height:36px;border-radius:50%;background:#7c5cff;color:#fff;display:grid;place-items:center;font:700 13px Manrope,sans-serif;flex:none">{{ me.ini }}</div>
       <div style="display:flex;flex-direction:column;min-width:0">
         <span style="font:700 13px Manrope,sans-serif">{{ me.name }}</span>
@@ -62,14 +111,14 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   </div>
 </aside>
 
-<main style="flex:1;min-width:0;display:flex;flex-direction:column">
-  <header style="position:sticky;top:0;z-index:30;background:rgba(247,247,245,.86);backdrop-filter:blur(14px);border-bottom:1px solid #ecebe7;padding:14px 30px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+<main id="main" class="app-main" style="flex:1;min-width:0;display:flex;flex-direction:column">
+  <header class="app-header" style="position:sticky;top:0;z-index:30;background:rgba(247,247,245,.86);backdrop-filter:blur(14px);border-bottom:1px solid #ecebe7;padding:14px 30px;display:flex;align-items:center;gap:14px;flex-wrap:wrap">
     <div style="flex:1;min-width:180px">
       <div style="font:700 11px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase">{{ crumb }}</div>
       <h1 style="margin:3px 0 0;font:700 25px/1.1 'Bricolage Grotesque',sans-serif;letter-spacing:-.025em">{{ pageTitle }}</h1>
     </div>
     <div style="position:relative;width:260px;max-width:100%">
-      <input value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onQKey }}" placeholder="Jump to a page…" style="width:100%;border:1px solid #e6e4df;border-radius:12px;padding:10px 14px;font:500 13px Manrope,sans-serif;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff">
+      <input id="jump" type="search" aria-label="Jump to a page" autocomplete="off" value="{{ q }}" onChange="{{ onQ }}" onKeyDown="{{ onQKey }}" placeholder="Jump to a page…" style="width:100%;border:1px solid #e6e4df;border-radius:12px;padding:10px 14px;font:500 13px Manrope,sans-serif;background:#fff;outline:none;transition:border-color .2s,box-shadow .2s" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff">
       <sc-if value="{{ qOpen }}" hint-placeholder-val="{{ false }}">
         <div style="position:absolute;top:calc(100% + 6px);left:0;right:0;background:#fff;border:1px solid #ecebe7;border-radius:14px;box-shadow:0 18px 40px -18px rgba(20,20,30,.3);padding:6px;animation:pop .18s both">
           <sc-for list="{{ qRes }}" as="x" hint-placeholder-count="2">
@@ -80,12 +129,12 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
       </sc-if>
     </div>
     <div style="position:relative">
-      <button onClick="{{ toggleNotif }}" style="position:relative;width:42px;height:42px;border-radius:12px;border:1px solid #e6e4df;background:#fff;cursor:pointer;display:grid;place-items:center" style-hover="background:#f3f2ef">
+      <button onClick="{{ toggleNotif }}" aria-label="Recent activity" aria-expanded="{{ notifOpen }}" style="position:relative;width:42px;height:42px;border-radius:12px;border:1px solid #e6e4df;background:#fff;cursor:pointer;display:grid;place-items:center" style-hover="background:#f3f2ef">
         <span style="width:14px;height:14px;border:2px solid #16161a;border-radius:7px 7px 3px 3px"></span>
         <sc-if value="{{ notifCount }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:-5px;right:-5px;min-width:19px;height:19px;border-radius:10px;background:#f43f5e;color:#fff;font:700 10.5px/19px Manrope,sans-serif;text-align:center;padding:0 5px;border:2px solid #f7f7f5">{{ notifCount }}</span></sc-if>
       </button>
       <sc-if value="{{ notifOpen }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute;right:0;top:calc(100% + 8px);width:330px;background:#fff;border:1px solid #ecebe7;border-radius:16px;box-shadow:0 22px 50px -20px rgba(20,20,30,.35);padding:14px;animation:pop .2s both;display:flex;flex-direction:column;gap:6px">
+        <div class="notif-pop" role="dialog" aria-label="Recent activity" style="position:absolute;right:0;top:calc(100% + 8px);width:330px;background:#fff;border:1px solid #ecebe7;border-radius:16px;box-shadow:0 22px 50px -20px rgba(20,20,30,.35);padding:14px;animation:pop .2s both;display:flex;flex-direction:column;gap:6px">
           <div style="font:600 15px 'Bricolage Grotesque',sans-serif;padding:2px 4px 6px">Recent activity</div>
           <sc-for list="{{ notifs }}" as="x" hint-placeholder-count="4">
             <div style="display:flex;gap:10px;padding:9px;border-radius:10px;background:#fafaf8">
@@ -96,13 +145,13 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         </div>
       </sc-if>
     </div>
-    <div style="display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:#fff;border:1px solid #e6e4df;border-radius:14px">
+    <div class="hide-sm" style="display:flex;align-items:center;gap:8px;padding:5px 12px 5px 5px;background:#fff;border:1px solid #e6e4df;border-radius:14px">
       <div style="width:32px;height:32px;border-radius:10px;background:#16161a;color:#fff;display:grid;place-items:center;font:700 12px Manrope,sans-serif">{{ me.ini }}</div>
       <div style="display:flex;flex-direction:column"><span style="font:700 12px Manrope,sans-serif">{{ roleName }}</span><span style="font:500 10.5px 'JetBrains Mono',monospace;color:#8a8a93">{{ me.id }}</span></div>
     </div>
   </header>
 
-  <div style="padding:26px 30px 70px;display:flex;flex-direction:column;gap:20px;width:100%;max-width:1380px">
+  <div class="app-content" style="padding:26px 30px 70px;display:flex;flex-direction:column;gap:20px;width:100%;max-width:1380px">
 
   <!-- DASHBOARD -->
   <sc-if value="{{ pg.dash }}" hint-placeholder-val="{{ true }}">
@@ -114,7 +163,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
       </div>
       <div style="display:flex;align-items:center;gap:8px;font:600 12.5px Manrope,sans-serif;color:#0c6b44;background:#e3f6ec;padding:8px 14px;border-radius:30px"><span style="width:8px;height:8px;border-radius:50%;background:#22a06b;animation:pulse 1.6s infinite"></span>Live · {{ clock }}</div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(220px,100%),1fr));gap:16px">
       <sc-for list="{{ stats }}" as="st" hint-placeholder-count="4">
         <button onClick="{{ st.go }}" style="text-align:left;position:relative;overflow:hidden;border:1px solid rgba(0,0,0,.03);cursor:pointer;background:{{ st.bg }};border-radius:22px;padding:20px 22px;display:flex;flex-direction:column;gap:10px;min-height:146px;transition:transform .3s cubic-bezier(.2,.7,.2,1),box-shadow .3s;animation:fadeUp .55s both;animation-delay:{{ st.delay }}" style-hover="transform:translateY(-4px);box-shadow:0 16px 30px -16px rgba(20,20,30,.3)">
           <span style="position:absolute;right:-30px;top:-30px;width:120px;height:120px;border-radius:50%;border:20px solid {{ st.ac }};opacity:.13"></span>
@@ -124,7 +173,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         </button>
       </sc-for>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px">
       <div style="background:#16161a;color:#fff;border-radius:22px;padding:24px;display:flex;gap:22px;align-items:center;flex-wrap:wrap;position:relative;overflow:hidden;animation:fadeUp .6s .1s both">
         <span style="position:absolute;right:-60px;bottom:-80px;width:240px;height:240px;border-radius:50%;background:#7c5cff;opacity:.25;filter:blur(30px)"></span>
         <div style="width:132px;height:132px;border-radius:50%;background:conic-gradient(#7c5cff {{ ringDeg }}deg,#2b2b33 0);display:grid;place-items:center;flex:none;transition:background .6s">
@@ -152,7 +201,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         <div style="display:flex;gap:10px"><sc-for list="{{ week }}" as="w" hint-placeholder-count="7"><span style="flex:1;text-align:center;font:600 11px Manrope,sans-serif;color:#8a8a93">{{ w.l }}</span></sc-for></div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(300px,100%),1fr));gap:16px">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px;animation:fadeUp .6s .2s both">
         <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">{{ dashListTitle }}</h3>
         <sc-for list="{{ dashList }}" as="x" hint-placeholder-count="3">
@@ -189,7 +238,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <!-- ATTENDANCE -->
   <sc-if value="{{ pg.att }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:20px;animation:fadeUp .5s both">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px">
       <div style="background:#efe9ff;border-radius:24px;padding:26px;display:flex;flex-direction:column;align-items:center;gap:16px;position:relative;overflow:hidden">
         <span style="position:absolute;left:-40px;top:-40px;width:160px;height:160px;border-radius:50%;border:26px solid #7c5cff;opacity:.08"></span>
         <span style="font:800 11px Manrope,sans-serif;color:#5236b8;letter-spacing:.08em;text-transform:uppercase">{{ todayLong }}</span>
@@ -207,7 +256,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
       </div>
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:24px;padding:24px;display:flex;flex-direction:column;gap:16px">
         <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px"><h3 style="margin:0;font:600 18px 'Bricolage Grotesque',sans-serif">November 2026</h3><span style="font:600 12px Manrope,sans-serif;color:#8a8a93">Hover a day for details</span></div>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
+        <div class="grid-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px">
           <sc-for list="{{ attSummary }}" as="x" hint-placeholder-count="4">
             <div style="background:{{ x.bg }};border-radius:14px;padding:12px"><div style="font:600 24px/1 'Bricolage Grotesque',sans-serif">{{ x.n }}</div><div style="font:700 11px Manrope,sans-serif;color:{{ x.fg }};margin-top:4px">{{ x.l }}</div></div>
           </sc-for>
@@ -220,12 +269,12 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         </div>
       </div>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:6px;overflow-x:auto">
         <h3 style="margin:0 0 8px;font:600 17px 'Bricolage Grotesque',sans-serif">Recent records</h3>
-        <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr 1fr;gap:8px;padding:0 10px 6px;font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase"><span>Date</span><span>In</span><span>Out</span><span>Hours</span><span>Status</span></div>
+        <div class="tbl-row" style="display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr 1fr;gap:8px;padding:0 10px 6px;font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase"><span>Date</span><span>In</span><span>Out</span><span>Hours</span><span>Status</span></div>
         <sc-for list="{{ records }}" as="x" hint-placeholder-count="6">
-          <div style="display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr 1fr;gap:8px;align-items:center;padding:10px;border-radius:11px;font:600 13px Manrope,sans-serif" style-hover="background:#fafaf8">
+          <div class="tbl-row" style="display:grid;grid-template-columns:1.3fr 1fr 1fr .8fr 1fr;gap:8px;align-items:center;padding:10px;border-radius:11px;font:600 13px Manrope,sans-serif" style-hover="background:#fafaf8">
             <span>{{ x.date }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ x.inT }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ x.outT }}</span><span style="font-family:'JetBrains Mono',monospace;font-size:12.5px">{{ x.hrs }}</span>
             <span><span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ x.bg }};color:{{ x.fg }}">{{ x.st }}</span></span>
           </div>
@@ -233,7 +282,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
       </div>
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
         <div><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Regularisation request</h3><div style="font:500 12.5px Manrope,sans-serif;color:#8a8a93;margin-top:4px">Correct a missed or wrong punch. Goes to your TL for approval.</div></div>
-        <form onSubmit="{{ submitReg }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <form onSubmit="{{ submitReg }}" class="form-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Date<input name="date" type="date" required="" max="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
           <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Correct time<input name="time" type="time" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
           <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Type<select name="type" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;background:#fff"><option>Missed punch-in</option><option>Missed punch-out</option><option>Wrong punch-out</option><option>On-duty (client site)</option></select></label>
@@ -268,14 +317,14 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <!-- TEAM LIVE -->
   <sc-if value="{{ pg.team }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(150px,100%),1fr));gap:12px">
       <sc-for list="{{ teamSummary }}" as="x" hint-placeholder-count="5">
         <button onClick="{{ x.go }}" style="text-align:left;border:{{ x.bd }};cursor:pointer;background:{{ x.bg }};border-radius:18px;padding:16px 18px;display:flex;flex-direction:column;gap:6px;transition:transform .2s" style-hover="transform:translateY(-2px)">
           <span style="font:600 30px/1 'Bricolage Grotesque',sans-serif;color:#16161a">{{ x.n }}</span><span style="font:700 12px Manrope,sans-serif;color:{{ x.fg }}">{{ x.l }}</span>
         </button>
       </sc-for>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(240px,100%),1fr));gap:14px">
       <sc-for list="{{ teamList }}" as="m" hint-placeholder-count="8">
         <div style="background:#fff;border:1px solid #ecebe7;border-radius:20px;padding:18px;display:flex;flex-direction:column;gap:14px;transition:transform .25s,box-shadow .25s;animation:pop .35s both" style-hover="transform:translateY(-3px);box-shadow:0 14px 28px -16px rgba(20,20,30,.3)">
           <div style="display:flex;align-items:center;gap:11px">
@@ -296,10 +345,10 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <!-- TRACK SHEET -->
   <sc-if value="{{ pg.track }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
         <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Log work</h3>
-        <form onSubmit="{{ submitTrack }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <form onSubmit="{{ submitTrack }}" class="form-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
           <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Date<input name="date" type="date" value="2026-11-16" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
           <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Hours<input name="hours" type="number" min="0.25" max="12" step="0.25" required="" placeholder="2.5" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
           <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Project<select name="project" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none;background:#fff"><option>Attendance API</option><option>Payroll Engine</option><option>Mobile App</option><option>Internal Tools</option><option>Client — Zenith Bank</option></select></label>
@@ -331,7 +380,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
             <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap"><span style="font:700 11px Manrope,sans-serif;padding:3px 9px;border-radius:20px;background:{{ x.pbg }};color:{{ x.pfg }}">{{ x.project }}</span><span style="font:600 11.5px Manrope,sans-serif;color:#8a8a93">{{ x.dateL }} · {{ x.who }}</span></div>
             <span style="font:600 13px Manrope,sans-serif">{{ x.desc }}</span>
             <div style="display:flex;gap:10px;flex-wrap:wrap">
-              <sc-if value="{{ x.link }}" hint-placeholder-val="{{ false }}"><a href="{{ x.link }}" target="_blank" style="font:600 12px Manrope,sans-serif">↗ {{ x.linkL }}</a></sc-if>
+              <sc-if value="{{ x.link }}" hint-placeholder-val="{{ false }}"><a href="{{ x.link }}" target="_blank" rel="noopener noreferrer" style="font:600 12px Manrope,sans-serif">↗ {{ x.linkL }}</a></sc-if>
               <sc-if value="{{ x.file }}" hint-placeholder-val="{{ false }}"><span style="font:600 12px 'JetBrains Mono',monospace;color:#5c5c66;background:#fff;border:1px solid #ecebe7;border-radius:6px;padding:1px 7px">📎 {{ x.file }}</span></sc-if>
             </div>
           </div>
@@ -356,7 +405,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
       <input name="due" type="date" required="" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 12px;font:500 13px Manrope,sans-serif">
       <button type="submit" style="border:none;cursor:pointer;border-radius:10px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff" style-hover="background:#33333b">Add</button>
     </form>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;align-items:start">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:14px;align-items:start">
       <sc-for list="{{ cols }}" as="c" hint-placeholder-count="4">
         <div style="background:{{ c.bg }};border-radius:22px;padding:14px;display:flex;flex-direction:column;gap:10px;min-height:260px">
           <div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px"><span style="font:800 12px Manrope,sans-serif;color:{{ c.fg }};letter-spacing:.06em;text-transform:uppercase">{{ c.name }}</span><span style="font:700 12px Manrope,sans-serif;background:#fff;color:{{ c.fg }};border-radius:20px;padding:2px 9px">{{ c.count }}</span></div>
@@ -380,7 +429,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <!-- LEAVE -->
   <sc-if value="{{ pg.leave }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:14px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(210px,100%),1fr));gap:14px">
       <sc-for list="{{ quotas }}" as="q" hint-placeholder-count="4">
         <div style="background:{{ q.bg }};border-radius:22px;padding:18px 20px;display:flex;align-items:center;gap:16px;transition:transform .25s" style-hover="transform:translateY(-3px)">
           <div style="width:72px;height:72px;border-radius:50%;background:conic-gradient({{ q.ac }} {{ q.deg }}deg,rgba(255,255,255,.85) 0);display:grid;place-items:center;flex:none"><div style="width:56px;height:56px;border-radius:50%;background:{{ q.bg }};display:grid;place-items:center;font:600 20px 'Bricolage Grotesque',sans-serif">{{ q.rem }}</div></div>
@@ -388,14 +437,14 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         </div>
       </sc-for>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:14px">
         <div style="display:flex;gap:4px;background:#f3f2ef;border-radius:12px;padding:4px;align-self:flex-start">
           <button onClick="{{ tabLeave }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 16px;font:700 12.5px Manrope,sans-serif;background:{{ tabLeaveBg }};box-shadow:{{ tabLeaveSh }};color:#16161a">Apply leave</button>
           <button onClick="{{ tabWfh }}" style="border:none;cursor:pointer;border-radius:9px;padding:8px 16px;font:700 12.5px Manrope,sans-serif;background:{{ tabWfhBg }};box-shadow:{{ tabWfhSh }};color:#16161a">Work from home</button>
         </div>
         <sc-if value="{{ isLeaveTab }}" hint-placeholder-val="{{ true }}">
-          <form onSubmit="{{ submitLeave }}" onChange="{{ onLeaveForm }}" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;animation:fadeUp .3s both">
+          <form onSubmit="{{ submitLeave }}" onChange="{{ onLeaveForm }}" class="form-2" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;animation:fadeUp .3s both">
             <label style="grid-column:1/-1;display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Leave type<select name="type" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;background:#fff"><option>Casual</option><option>Sick</option><option>Earned</option><option>Comp-off</option></select></label>
             <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">From<input name="from" type="date" required="" min="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
             <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">To<input name="to" type="date" required="" min="2026-11-16" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none" style-focus="border-color:#7c5cff;box-shadow:0 0 0 4px #efe9ff"></label>
@@ -448,7 +497,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         </div>
       </div>
     </sc-if>
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(360px,1fr));gap:16px;align-items:start">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(360px,100%),1fr));gap:16px;align-items:start">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:16px">
         <div style="display:flex;gap:6px;flex-wrap:wrap">
           <sc-for list="{{ months }}" as="m" hint-placeholder-count="6">
@@ -506,9 +555,9 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
     <sc-if value="{{ isHR }}" hint-placeholder-val="{{ false }}">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:4px;overflow-x:auto">
         <h3 style="margin:0 0 10px;font:600 17px 'Bricolage Grotesque',sans-serif">Payroll register · Nov 2026</h3>
-        <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr .8fr;gap:8px;padding:0 10px 6px;font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase;min-width:620px"><span>Employee</span><span>Gross</span><span>PF + PT</span><span>TDS</span><span>Net</span><span>Status</span></div>
+        <div class="tbl-row" style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr .8fr;gap:8px;padding:0 10px 6px;font:700 10.5px Manrope,sans-serif;color:#8a8a93;letter-spacing:.06em;text-transform:uppercase;min-width:620px"><span>Employee</span><span>Gross</span><span>PF + PT</span><span>TDS</span><span>Net</span><span>Status</span></div>
         <sc-for list="{{ register }}" as="x" hint-placeholder-count="6">
-          <div style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr .8fr;gap:8px;align-items:center;padding:10px;border-radius:11px;font:600 12.5px Manrope,sans-serif;min-width:620px" style-hover="background:#fafaf8">
+          <div class="tbl-row" style="display:grid;grid-template-columns:1.6fr 1fr 1fr 1fr 1fr .8fr;gap:8px;align-items:center;padding:10px;border-radius:11px;font:600 12.5px Manrope,sans-serif;min-width:620px" style-hover="background:#fafaf8">
             <span>{{ x.name }}</span><span style="font-family:'JetBrains Mono',monospace">{{ x.g }}</span><span style="font-family:'JetBrains Mono',monospace">{{ x.pf }}</span><span style="font-family:'JetBrains Mono',monospace">{{ x.tds }}</span><span style="font-family:'JetBrains Mono',monospace;font-weight:700">{{ x.net }}</span><span><span style="font:700 11px Manrope,sans-serif;padding:4px 10px;border-radius:20px;background:{{ slipBadge.bg }};color:{{ slipBadge.fg }}">{{ novStatus }}</span></span>
           </div>
         </sc-for>
@@ -520,7 +569,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <!-- PERFORMANCE -->
   <sc-if value="{{ pg.perf }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:16px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(340px,100%),1fr));gap:16px">
       <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;align-items:center;gap:6px">
         <div style="align-self:stretch;display:flex;justify-content:space-between;align-items:baseline"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Performance score</h3><span style="font:600 12px Manrope,sans-serif;color:#8a8a93">Aarav Mehta · H2 2026</span></div>
         <svg viewBox="0 0 240 140" style="width:100%;max-width:320px">
@@ -532,7 +581,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         </svg>
         <div style="font:600 48px/1 'Bricolage Grotesque',sans-serif;letter-spacing:-.03em">{{ finalScore }}</div>
         <span style="font:800 12px Manrope,sans-serif;padding:5px 12px;border-radius:20px;background:{{ band.bg }};color:{{ band.fg }}">{{ band.n }} band{{ overrideNote }}</span>
-        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;margin-top:12px">
+        <div class="grid-4" style="display:grid;grid-template-columns:repeat(4,1fr);gap:6px;width:100%;margin-top:12px">
           <sc-for list="{{ bands }}" as="b" hint-placeholder-count="4"><div style="border-radius:10px;padding:8px;background:{{ b.bg }};border:2px solid {{ b.bd }};text-align:center;transition:border-color .3s"><div style="font:800 11px Manrope,sans-serif;color:{{ b.fg }}">{{ b.n }}</div><div style="font:600 10.5px 'JetBrains Mono',monospace;color:{{ b.fg }}">{{ b.r }}</div></div></sc-for>
         </div>
       </div>
@@ -550,12 +599,12 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
     <div style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
       <div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">KPI goals</h3><span style="font:600 12px Manrope,sans-serif;color:#8a8a93">Drag to update progress · weighted score {{ selfScore }}</span></div>
       <sc-for list="{{ goals }}" as="g" hint-placeholder-count="5">
-        <div style="display:grid;grid-template-columns:minmax(200px,1.4fr) minmax(160px,2fr) 56px;gap:16px;align-items:center;padding:12px 14px;border-radius:14px;background:{{ g.bg }}">
+        <div class="goal-row" style="display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,2fr) 56px;gap:16px;align-items:center;padding:12px 14px;border-radius:14px;background:{{ g.bg }}">
           <div style="display:flex;flex-direction:column;gap:2px"><span style="font:700 13px Manrope,sans-serif">{{ g.title }}</span><span style="font:600 11.5px Manrope,sans-serif;color:{{ g.fg }}">{{ g.kpi }} · weight {{ g.weight }}%</span></div>
-          <div style="position:relative;height:22px;display:flex;align-items:center">
+          <div class="goal-track" style="position:relative;height:22px;display:flex;align-items:center">
             <div style="position:absolute;left:0;right:0;height:8px;border-radius:8px;background:rgba(255,255,255,.9)"></div>
             <div style="position:absolute;left:0;height:8px;border-radius:8px;width:{{ g.pct }};background:{{ g.ac }};transition:width .15s"></div>
-            <input type="range" min="0" max="100" value="{{ g.progress }}" onChange="{{ g.onProg }}" style="position:relative;width:100%;margin:0;opacity:0;cursor:pointer;height:22px">
+            <input type="range" aria-label="{{ g.aria }}" min="0" max="100" value="{{ g.progress }}" onChange="{{ g.onProg }}" style="position:relative;width:100%;margin:0;opacity:0;cursor:pointer;height:22px">
           </div>
           <span style="font:700 14px 'JetBrains Mono',monospace;text-align:right">{{ g.pct }}</span>
         </div>
@@ -594,7 +643,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         <button type="submit" style="border:none;cursor:pointer;border-radius:10px;padding:11px 18px;font:700 13px Manrope,sans-serif;background:#16161a;color:#fff">Publish</button>
       </form>
     </sc-if>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:14px">
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(min(270px,100%),1fr));gap:14px">
       <sc-for list="{{ trainings }}" as="t" hint-placeholder-count="5">
         <div style="background:{{ t.bg }};border-radius:22px;padding:20px;display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden;transition:transform .25s,box-shadow .25s;animation:fadeUp .45s both" style-hover="transform:translateY(-4px);box-shadow:0 18px 30px -18px rgba(20,20,30,.35)">
           <span style="position:absolute;right:-24px;bottom:-24px;width:96px;height:96px;border-radius:24px;background:{{ t.ac }};opacity:.12;transform:rotate(20deg)"></span>
@@ -618,7 +667,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <sc-if value="{{ pg.exit }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
     <sc-if value="{{ showExitForm }}" hint-placeholder-val="{{ false }}">
-      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:16px">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr));gap:16px">
         <form onSubmit="{{ submitExit }}" style="background:#fff;border:1px solid #ecebe7;border-radius:22px;padding:22px;display:flex;flex-direction:column;gap:12px">
           <h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Submit resignation</h3>
           <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#5c5c66">Primary reason<select name="reason" style="border:1px solid #e6e4df;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;background:#fff"><option>Career growth</option><option>Higher studies</option><option>Relocation</option><option>Compensation</option><option>Personal reasons</option></select></label>
@@ -671,7 +720,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
   <!-- EMPLOYEES -->
   <sc-if value="{{ pg.emps }}" hint-placeholder-val="{{ false }}">
   <div style="display:flex;flex-direction:column;gap:18px;animation:fadeUp .5s both">
-    <form onSubmit="{{ onboard }}" style="background:#fff4c9;border-radius:22px;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:10px;align-items:end">
+    <form onSubmit="{{ onboard }}" style="background:#fff4c9;border-radius:22px;padding:20px;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(160px,100%),1fr));gap:10px;align-items:end">
       <div style="grid-column:1/-1"><h3 style="margin:0;font:600 17px 'Bricolage Grotesque',sans-serif">Onboard new employee</h3></div>
       <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Full name<input name="name" required="" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
       <label style="display:flex;flex-direction:column;gap:6px;font:700 11.5px Manrope,sans-serif;color:#7a5a00">Work email<input name="email" type="email" required="" placeholder="name@nitp.in" style="border:1px solid #efdf9c;border-radius:10px;padding:9px 11px;font:500 13px Manrope,sans-serif;outline:none"></label>
@@ -726,7 +775,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
 
 <sc-if value="{{ cert }}" hint-placeholder-val="{{ false }}">
   <div onClick="{{ closeCert }}" style="position:fixed;inset:0;background:rgba(22,22,26,.45);backdrop-filter:blur(6px);display:grid;place-items:center;z-index:80;padding:20px;animation:pop .2s both">
-    <div onClick="{{ stop }}" style="width:min(640px,100%);background:#fff;border-radius:24px;padding:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.5)">
+    <div onClick="{{ stop }}" role="dialog" aria-modal="true" aria-label="Certificate of completion" style="width:min(640px,100%);max-height:calc(100vh - 40px);overflow:auto;background:#fff;border-radius:24px;padding:14px;box-shadow:0 30px 80px -30px rgba(0,0,0,.5)">
       <div style="border:2px solid #efe9ff;border-radius:18px;padding:40px 36px;display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;background:#fdfcff">
         <div style="display:flex;gap:4px"><span style="width:10px;height:10px;border-radius:3px;background:#22a06b"></span><span style="width:10px;height:10px;border-radius:3px;background:#3b82f6"></span><span style="width:10px;height:10px;border-radius:3px;background:#f97316"></span><span style="width:10px;height:10px;border-radius:3px;background:#7c5cff"></span></div>
         <span style="font:800 11px Manrope,sans-serif;letter-spacing:.14em;color:#5236b8;text-transform:uppercase">Certificate of completion</span>
@@ -737,7 +786,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
         <span style="font:600 12px 'JetBrains Mono',monospace;color:#8a8a93;margin-top:8px">{{ cert.dateL }} · ID {{ cert.cid }}</span>
       </div>
       <div style="display:flex;justify-content:flex-end;gap:8px;padding:14px 4px 4px">
-        <button onClick="{{ closeCert }}" style="border:1px solid #e6e4df;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#fff">Close</button>
+        <button id="cert-close" onClick="{{ closeCert }}" style="border:1px solid #e6e4df;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#fff">Close</button>
         <button onClick="{{ downloadCert }}" style="border:none;cursor:pointer;border-radius:10px;padding:9px 16px;font:700 12.5px Manrope,sans-serif;background:#16161a;color:#fff">↓ Download</button>
       </div>
     </div>
@@ -745,7 +794,7 @@ a{color:#5236b8;text-decoration:none}a:hover{color:#16161a;text-decoration:under
 </sc-if>
 
 <sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
-  <div style="position:fixed;right:24px;bottom:24px;z-index:90;display:flex;align-items:center;gap:12px;background:#16161a;color:#fff;border-radius:14px;padding:13px 18px 13px 14px;font:600 13px Manrope,sans-serif;box-shadow:0 20px 40px -18px rgba(0,0,0,.5);animation:toastIn .35s cubic-bezier(.2,.8,.2,1) both;max-width:420px">
+  <div class="toast" role="status" aria-live="polite" style="position:fixed;right:24px;bottom:24px;z-index:90;display:flex;align-items:center;gap:12px;background:#16161a;color:#fff;border-radius:14px;padding:13px 18px 13px 14px;font:600 13px Manrope,sans-serif;box-shadow:0 20px 40px -18px rgba(0,0,0,.5);animation:toastIn .35s cubic-bezier(.2,.8,.2,1) both;max-width:420px">
     <span style="width:10px;height:10px;border-radius:50%;background:{{ toast.c }};flex:none"></span>{{ toast.m }}
   </div>
 </sc-if>
@@ -777,7 +826,21 @@ const ONB=['Offer signed','Documents verified','Laptop issued','Accounts created
 const RUN=['Lock attendance','Compute LOP','PF / ESI / TDS','Generate payslips','Disburse'];
 const PROJ_C={'Attendance API':'lav','Payroll Engine':'mint','Mobile App':'sky','Internal Tools':'lemon','Client — Zenith Bank':'peach'};
 const at=(h,m)=>new Date(2026,10,16,h,m);
-function dlFile(name,content,type){try{const b=new Blob([content],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();return true}catch(e){return false}}
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const csvCell=v=>{let t=String(v??'');if(/^[=+\-@\t\r]/.test(t))t="'"+t;return '"'+t.replace(/"/g,'""')+'"'};
+let _dl=null;const dlCap=()=>_dl||(_dl=(window.claude&&window.claude.use?window.claude.use('downloads'):Promise.resolve(null)).catch(()=>null));
+async function dlFile(name,content,type){const d=await dlCap();if(d){try{await d.save({filename:name,data:new Blob([content],{type})});return 'saved'}catch(e){return e&&/declin|cancel|dismiss|denied|not_granted/i.test(String(e.code||e.message))?'declined':'failed'}}
+  try{const b=new Blob([content],{type});const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);return 'saved'}catch(e){return 'failed'}}
+const STORE_KEY='nitp-hrms-demo-v1';
+const PERSIST=['role','page','punchIn','punchOut','punchDay','late','early','regs','tracks','tasks','leaves','wfh','quotas','leaveTab','slip','runDone','goals','override','appraisal','trainings','myExit','exits','emps','audit','teamF'];
+const dayKey=d=>d.getFullYear()+'-'+(d.getMonth()+1)+'-'+d.getDate();
+function loadSaved(){try{const raw=localStorage.getItem(STORE_KEY);if(!raw)return null;const o=JSON.parse(raw);if(!o||o.v!==1)return null;const st=o.s||{};
+  ['punchIn','punchOut'].forEach(k=>{if(st[k])st[k]=new Date(st[k])});
+  if(st.punchDay!==dayKey(new Date())){st.punchIn=null;st.punchOut=null;st.late=false;st.early=false}
+  if(Array.isArray(st.audit))st.audit=st.audit.map(a=>({...a,t:new Date(a.t)}));
+  if(st.role&&!['emp','tl','hr'].includes(st.role))delete st.role;return st}catch(e){return null}}
+function saveState(s){try{const o={};PERSIST.forEach(k=>o[k]=s[k]);localStorage.setItem(STORE_KEY,JSON.stringify({v:1,s:o}))}catch(e){}}
+function clearSaved(){try{localStorage.removeItem(STORE_KEY)}catch(e){}}
 
 class Component extends DCLogic{
   state={role:this.props.startRole||'emp',page:'dash',now:new Date(),punchIn:null,punchOut:null,late:false,early:false,ip:'103.21.58.'+(40+Math.floor(Math.random()*180)),att:genAtt(),
@@ -795,19 +858,29 @@ class Component extends DCLogic{
     audit:[{id:1,t:at(9,2),who:'Vikram Singh',a:'Punched in at 09:02',tone:'mint'},{id:2,t:at(9,12),who:'Sneha Iyer',a:'Punched in (WFH) at 09:12',tone:'sky'},{id:3,t:at(8,40),who:'Kavya Rao',a:'Onboarding started for Neha Kulkarni',tone:'lemon'},{id:4,t:new Date(2026,10,15,18,5),who:'Priya Nair',a:'Approved leave for Aarav Mehta (Casual, 1 day)',tone:'mint'},{id:5,t:new Date(2026,10,14,11,30),who:'Kavya Rao',a:'Published training: Secure Coding Essentials',tone:'lav'}],
     toast:null,notif:false,q:'',aq:'',teamF:'All'};
 
-  componentDidMount(){this._t=setInterval(()=>this.setState({now:new Date()}),1000)}
-  componentWillUnmount(){clearInterval(this._t);clearTimeout(this._tt);clearTimeout(this._rt)}
+  componentDidMount(){this._initial=this.state;const saved=loadSaved();if(saved)this.setState(saved);
+    this._t=setInterval(()=>this.setState({now:new Date()}),1000);
+    this._key=e=>{if(e.key==='Escape'){if(this.state.cert)this.setState({cert:null});else if(this.state.notif)this.setState({notif:false})}};
+    this._click=e=>{if(this.state.notif&&!e.target.closest('.notif-pop')&&!e.target.closest('[aria-label="Recent activity"]'))this.setState({notif:false})};
+    document.addEventListener('keydown',this._key);document.addEventListener('click',this._click)}
+  componentDidUpdate(){if(!this._initial)return;const st=this.state,pv=this._prev||{};
+    if(PERSIST.some(k=>pv[k]!==st[k])){clearTimeout(this._st);this._st=setTimeout(()=>saveState(this.state),250)}
+    if(st.cert&&!pv.cert)setTimeout(()=>{const b=document.getElementById('cert-close');if(b)b.focus()},30);
+    const n={cert:st.cert};PERSIST.forEach(k=>n[k]=st[k]);this._prev=n}
+  componentWillUnmount(){clearInterval(this._t);clearTimeout(this._tt);clearTimeout(this._rt);clearTimeout(this._st);clearTimeout(this._rc);document.removeEventListener('keydown',this._key);document.removeEventListener('click',this._click)}
+  resetDemo=()=>{if(!this.state.confirmReset){this.setState({confirmReset:true});clearTimeout(this._rc);this._rc=setTimeout(()=>this.setState({confirmReset:false}),4000);return}
+    clearTimeout(this._rc);clearTimeout(this._rt);clearSaved();const i=this._initial;this.setState({...i,att:genAtt(),run:-1,confirmReset:false,now:new Date()});this.toast('Demo data reset','sky')};
 
   me(){return U[this.state.role]}
-  go=k=>this.setState({page:k,notif:false,q:''});
+  go=k=>{this.setState({page:k,notif:false,q:''});setTimeout(()=>{try{window.scrollTo({top:0});const a=document.querySelector('.app-nav [aria-current=page]');if(a)a.scrollIntoView({block:'nearest',inline:'nearest'})}catch(e){}},60)};
   log=(a,tone='sky')=>this.setState(s=>({audit:[{id:Math.random(),t:new Date(),who:U[s.role].name,a,tone},...s.audit]}));
   toast=(m,tone='mint')=>{clearTimeout(this._tt);this.setState({toast:{m,c:T[tone][2]}});this._tt=setTimeout(()=>this.setState({toast:null}),2800)};
   form=e=>{e.preventDefault();return Object.fromEntries(new FormData(e.target))};
   lateLimit(){const [h,m]=(this.props.shiftStart||'09:30').split(':').map(Number);return h*60+m+(this.props.graceMins??15)}
 
   punch=()=>{const n=new Date(),s=this.state,mins=n.getHours()*60+n.getMinutes();
-    if(!s.punchIn){const late=mins>this.lateLimit();this.setState({punchIn:n,punchOut:null,late});this.log(`Punched in at ${hm(n)} from ${s.ip}${late?' — late':''}`,late?'lemon':'mint');this.toast(late?`Punched in ${hm(n)} — marked late`:`Punched in at ${hm(n)}. Have a good day!`,late?'lemon':'mint')}
-    else if(!s.punchOut){const early=mins<this.lateLimit()-15+9*60;this.setState({punchOut:n,early});this.log(`Punched out at ${hm(n)}${early?' — early leaving':''}`,early?'rose':'sky');this.toast(early?'Punched out — flagged as early leaving':'Punched out. See you tomorrow!',early?'rose':'sky')}
+    if(!s.punchIn){const late=mins>this.lateLimit();this.setState({punchIn:n,punchOut:null,late,punchDay:dayKey(n)});this.log(`Punched in at ${hm(n)} from ${s.ip}${late?' — late':''}`,late?'lemon':'mint');this.toast(late?`Punched in ${hm(n)} — marked late`:`Punched in at ${hm(n)}. Have a good day!`,late?'lemon':'mint')}
+    else if(!s.punchOut){const [sh0,sm0]=(this.props.shiftStart||'09:30').split(':').map(Number);const early=mins<sh0*60+sm0+9*60;this.setState({punchOut:n,early});this.log(`Punched out at ${hm(n)}${early?' — early leaving':''}`,early?'rose':'sky');this.toast(early?'Punched out — flagged as early leaving':'Punched out. See you tomorrow!',early?'rose':'sky')}
     else this.toast('Already punched out today. Raise a regularisation if needed.','sky')};
 
   submitReg=e=>{const f=this.form(e);this.setState(s=>({regs:[{id:Date.now(),who:this.me().name,...f,status:'Pending'},...s.regs]}));this.log(`Requested regularisation: ${f.type} on ${dl(f.date)}`,'lemon');this.toast('Regularisation sent for approval','lemon');e.target.reset()};
@@ -822,7 +895,7 @@ class Component extends DCLogic{
   submitWfh=e=>{const f=this.form(e);this.setState(s=>({wfh:[{id:Date.now(),who:this.me().name,...f,status:'Pending'},...s.wfh]}));this.log(`Requested WFH for ${dl(f.date)}`,'sky');this.toast('WFH request submitted','sky');e.target.reset()};
 
   runPayroll=()=>{if(this.state.runDone||this.state.run>=0)return;const step=i=>{this.setState({run:i});if(i<RUN.length){this._rt=setTimeout(()=>step(i+1),800)}else{this.setState({runDone:true,run:-1});this.log('Ran payroll for November 2026 — 7 payslips generated','mint');this.toast('Payroll complete. Payslips published.','mint')}};step(0)};
-  downloadSlip=()=>{const s=this.state,m=this.monthsData()[s.slip],p=slipCalc(m.lop);const rows=(a)=>a.map(x=>`<tr><td>${x.l}</td><td style="text-align:right">${x.v}</td></tr>`).join('');const html=`<!doctype html><meta charset="utf-8"><title>Payslip ${m.m}</title><body style="font-family:system-ui;max-width:640px;margin:40px auto;color:#16161a"><h2>NITP — Payslip ${m.m}</h2><p>Aarav Mehta · NITP-1042 · Software Engineer</p><table width="100%" cellpadding="6" style="border-collapse:collapse"><tr><th align="left">Earnings</th><th></th></tr>${rows(p.earn)}<tr><td><b>Gross</b></td><td align="right"><b>${p.gross}</b></td></tr><tr><th align="left">Deductions</th><th></th></tr>${rows(p.ded)}<tr><td><b>Total deductions</b></td><td align="right"><b>${p.tded}</b></td></tr></table><h3>Net pay: ${p.net}</h3></body>`;dlFile(`Payslip-${m.m.replace(' ','-')}.html`,html,'text/html');this.log(`Downloaded payslip for ${m.m}`,'mint');this.toast(`Payslip for ${m.m} downloaded`,'mint')};
+  downloadSlip=()=>{const s=this.state,m=this.monthsData()[s.slip],p=slipCalc(m.lop);const rows=(a)=>a.map(x=>`<tr><td>${esc(x.l)}</td><td style="text-align:right">${esc(x.v)}</td></tr>`).join('');const html=`<!doctype html><meta charset="utf-8"><title>Payslip ${m.m}</title><body style="font-family:system-ui;max-width:640px;margin:40px auto;color:#16161a"><h2>NITP — Payslip ${m.m}</h2><p>Aarav Mehta · NITP-1042 · Software Engineer</p><table width="100%" cellpadding="6" style="border-collapse:collapse"><tr><th align="left">Earnings</th><th></th></tr>${rows(p.earn)}<tr><td><b>Gross</b></td><td align="right"><b>${p.gross}</b></td></tr><tr><th align="left">Deductions</th><th></th></tr>${rows(p.ded)}<tr><td><b>Total deductions</b></td><td align="right"><b>${p.tded}</b></td></tr></table><h3>Net pay: ${p.net}</h3></body>`;dlFile(`Payslip-${m.m.replace(' ','-')}.html`,html,'text/html').then(r=>{if(r==='saved'){this.log(`Downloaded payslip for ${m.m}`,'mint');this.toast(`Payslip for ${m.m} saved`,'mint')}else if(r==='failed')this.toast('Download is blocked in this view','rose')})};
 
   setProg=(id,v)=>this.setState(s=>({goals:s.goals.map(g=>g.id===id?{...g,progress:v}:g)}));
   submitAppraisal=e=>{const f=this.form(e);this.setState({appraisal:{...f,by:this.me().name}});this.log(`Appraised Aarav Mehta: ${f.rating}`,'sky');this.toast('Appraisal submitted','sky');e.target.reset()};
@@ -831,7 +904,7 @@ class Component extends DCLogic{
 
   setTr=(id,patch)=>this.setState(s=>({trainings:s.trainings.map(t=>t.id===id?{...t,...patch(t)}:t)}));
   addTraining=e=>{const f=this.form(e);const tones=['sky','lav','mint','peach','lemon','rose'];this.setState(s=>({trainings:[{id:Date.now(),title:f.title,date:f.date,time:'10:00–12:00',mode:f.mode,host:'People Ops',seats:+f.seats||20,tone:tones[s.trainings.length%6],status:'open'},...s.trainings]}));this.log(`Published training: ${f.title}`,'lav');this.toast('Training published','lav');e.target.reset()};
-  downloadCert=()=>{const c=this.state.cert;dlFile(`Certificate-${c.cid}.html`,`<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;text-align:center;padding:80px"><p style="letter-spacing:.2em">CERTIFICATE OF COMPLETION</p><h1>${this.me().name}</h1><p>has successfully completed</p><h2>${c.title}</h2><p>${c.dateL} · ID ${c.cid}</p></body>`,'text/html');this.toast('Certificate downloaded','lav')};
+  downloadCert=()=>{const c=this.state.cert;dlFile(`Certificate-${c.cid}.html`,`<!doctype html><meta charset="utf-8"><body style="font-family:system-ui;text-align:center;padding:80px"><p style="letter-spacing:.2em">CERTIFICATE OF COMPLETION</p><h1>${esc(this.me().name)}</h1><p>has successfully completed</p><h2>${esc(c.title)}</h2><p>${esc(c.dateL)} · ID ${esc(c.cid)}</p></body>`,'text/html').then(r=>{if(r==='saved')this.toast('Certificate saved','lav');else if(r==='failed')this.toast('Download is blocked in this view','rose')})};
 
   submitExit=e=>{const f=this.form(e);this.setState({myExit:{who:this.me().name,date:'2026-11-16',lwd:'2027-01-15',reason:f.reason,comments:f.comments,step:1}});this.log('Submitted resignation','peach');this.toast('Resignation submitted to your TL','peach')};
   withdrawExit=()=>{this.setState({myExit:null});this.log('Withdrew resignation','sky');this.toast('Resignation withdrawn','sky')};
@@ -848,8 +921,8 @@ class Component extends DCLogic{
     const pendLeave=s.leaves.filter(x=>x.status==='Pending').length+s.wfh.filter(x=>x.status==='Pending').length;
     const pendRegsL=s.regs.filter(x=>x.status==='Pending');
     const pendTracks=s.tracks.filter(x=>x.status==='Submitted'&&x.who!==me.name).length;
-    const navItems=NAV.filter(n=>n[3].includes(r)).map(([k,l,t])=>({k,l,dot:T[t][2],bg:s.page===k?'#16161a':'transparent',fg:s.page===k?'#fff':'#4a4a52',go:()=>this.go(k),badge:isMgr&&k==='leave'&&pendLeave?String(pendLeave):isMgr&&k==='att'&&pendRegsL.length?String(pendRegsL.length):''}));
-    const roles=['emp','tl','hr'].map(k=>({l:k==='emp'?'Emp':k.toUpperCase(),bg:r===k?'#fff':'transparent',fg:r===k?'#16161a':'#6b6b74',sh:r===k?'0 1px 3px rgba(0,0,0,.12)':'none',go:()=>{this.setState({role:k,page:'dash',notif:false});this.toast(`Viewing as ${RN[k]} — ${U[k].name}`,'lav')}}));
+    const navItems=NAV.filter(n=>n[3].includes(r)).map(([k,l,t])=>({k,l,dot:T[t][2],bg:s.page===k?'#16161a':'transparent',fg:s.page===k?'#fff':'#4a4a52',cur:s.page===k?'page':undefined,go:()=>this.go(k),badge:isMgr&&k==='leave'&&pendLeave?String(pendLeave):isMgr&&k==='att'&&pendRegsL.length?String(pendRegsL.length):''}));
+    const roles=['emp','tl','hr'].map(k=>({l:k==='emp'?'Emp':k.toUpperCase(),full:'View as '+RN[k],on:r===k,bg:r===k?'#fff':'transparent',fg:r===k?'#16161a':'#6b6b74',sh:r===k?'0 1px 3px rgba(0,0,0,.12)':'none',go:()=>{this.setState({role:k,page:'dash',notif:false});this.toast(`Viewing as ${RN[k]} — ${U[k].name}`,'lav')}}));
     // clock & punch
     const ms=s.punchIn?((s.punchOut||now)-s.punchIn):0;
     const hh=Math.floor(ms/3600000),mm=Math.floor(ms/60000)%60,ss=Math.floor(ms/1000)%60;
@@ -914,7 +987,7 @@ class Component extends DCLogic{
     const gaugeArcs=BANDS.map(([n,a,b,t],i)=>({d:arc(a+(i?0.8:0),b-(i<3?0.8:0)),c:T[t][2]}));
     const trendV=[62,68,71,66,74,finalScore];const MO=['Jun','Jul','Aug','Sep','Oct','Nov'];
     const pts=trendV.map((v,i)=>`${i*60},${(120-v*1.1).toFixed(1)}`);
-    const goals=s.goals.map(g=>({...g,pct:g.progress+'%',bg:T[g.tone][0],fg:T[g.tone][1],ac:T[g.tone][2],onProg:e=>this.setProg(g.id,+e.target.value)}));
+    const goals=s.goals.map(g=>({...g,aria:`Progress for ${g.title}`,pct:g.progress+'%',bg:T[g.tone][0],fg:T[g.tone][1],ac:T[g.tone][2],onProg:e=>this.setProg(g.id,+e.target.value)}));
     const appraisalNote=s.appraisal?`Latest: ${s.appraisal.rating} by ${s.appraisal.by} — “${s.appraisal.comment}”`:'No manager appraisal yet for this cycle.';
     // trainings
     const trainings=s.trainings.map(t=>{const d=new Date(t.date+'T00:00:00');return{...t,mon:d.toLocaleDateString('en-IN',{month:'short'}),day:d.getDate(),bg:T[t.tone][0],fg:T[t.tone][1],ac:T[t.tone][2],statusL:t.status==='open'?'Open':t.status==='enrolled'?'Enrolled':'Completed',isOpen:t.status==='open',isEnrolled:t.status==='enrolled',isDone:t.status==='completed',
@@ -985,8 +1058,8 @@ class Component extends DCLogic{
       trainings,addTraining:this.addTraining,cert:s.cert,closeCert:()=>this.setState({cert:null}),stop:e=>e.stopPropagation(),downloadCert:this.downloadCert,
       showExitForm:r==='emp'&&!s.myExit,showMyExit:r==='emp'&&!!s.myExit,myExit,submitExit:this.submitExit,withdrawExit:this.withdrawExit,lwdPreview:dl('2027-01-15'),exitSteps:EXIT_STEPS.map((n,i)=>({n,i:i+1})),exitList,noExits:!exitList.length,
       onboard:this.onboard,empList,empCount:s.emps.length,
-      aq:s.aq,onAq:e=>this.setState({aq:e.target.value}),auditList,exportAudit:()=>{dlFile('nitp-audit-log.csv','time,who,action\n'+s.audit.map(x=>`"${fmtW(x.t)}","${x.who}","${x.a.replace(/"/g,"'")}"`).join('\n'),'text/csv');this.toast('Audit log exported','mint')},
-      toast:s.toast
+      aq:s.aq,onAq:e=>this.setState({aq:e.target.value}),auditList,exportAudit:()=>{dlFile('nitp-audit-log.csv','time,who,action\n'+auditList.map(x=>[x.t.toISOString(),x.who,x.a].map(csvCell).join(',')).join('\n'),'text/csv').then(r=>{if(r==='saved')this.toast(`Exported ${auditList.length} audit entries`,'mint');else if(r==='failed')this.toast('Download is blocked in this view','rose')})},
+      toast:s.toast,resetDemo:this.resetDemo,resetLabel:s.confirmReset?'Click again to reset':'Reset'
     };
   }
 }

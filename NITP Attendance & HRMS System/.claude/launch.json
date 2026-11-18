@@ -1,0 +1,4 @@
+{"version":"0.0.1","configurations":[
+{"name":"hrms","runtimeExecutable":"python","runtimeArgs":["-m","http.server","8765"],"port":8765},
+{"name":"nitp-app","runtimeExecutable":"npm","runtimeArgs":["--prefix","E:/Projects/NITP_Attendance_New/NITP_Attendance_New/nitp-hrms","run","dev","--","-p","3100"],"port":3100}
+]}
